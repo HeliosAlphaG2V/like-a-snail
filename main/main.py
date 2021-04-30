@@ -93,7 +93,7 @@ class emulatorAggregator:
         pygame.draw.rect(sfBorder, (128, 128, 128), (0, 0, 160, 144), 1)
         rectBorder = rectBorder.move(screenOffsetX, screenOffsetY)
          
-        imgGB = pygame.image.load(os.path.join(os.getcwd()+'\\Resource\\' , 'GB.jpg'))
+        imgGB = pygame.image.load(os.path.join(os.getcwd()+'\\res\\' , 'gb.png'))
         
     #    asyncio.set_event_loop(loop)
     
@@ -427,7 +427,7 @@ class emulatorAggregator:
                 screen.blit(sfTiles, rectTiles) 
     
             if( updateScene ):  
-                self.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, rectSfSprite, opCode, font)
+                self.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, sfTiles, rectTiles, rectSfSprite, opCode, font)
                 updateScene = False 
                         
     #         if( time.time() - start_time != 0):
@@ -452,7 +452,7 @@ class emulatorAggregator:
         print('HL:\t', hex(memCntr.getR16FromR8(R8ID.H)))
         print('DE:\t', hex(memCntr.getR16FromR8(R8ID.H)))
     
-    def updateSceneFC(self, memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, rectSfSprite, opCode, font):
+    def updateSceneFC(self, memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, sfTiles, rectTiles, rectSfSprite, opCode, font):
         #print("Updating scene...")  
         
         # Window    
@@ -472,6 +472,7 @@ class emulatorAggregator:
         screen.blit(sfScreen, rectScreen)
         screen.blit(sfBorder, rectBorder)
         screen.blit(sfSprite, rectSfSprite)
+        screen.blit(sfTiles, rectTiles)
         
         strArray = [str("IME: ")+str(format(memCntr.getMemValue(0xFFFF), "08b")),
                     str("LCD: ")+str(format(memCntr.getMemValue(0xFF41), "08b")),

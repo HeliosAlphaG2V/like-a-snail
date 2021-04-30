@@ -422,7 +422,7 @@ class MemCntr:
     ##################################################    
         
     def loadBooatloader(self):
-        strBootloaderPath = os.path.join(os.getcwd()+'\\Resource\\' , 'Bootloader.bin')
+        strBootloaderPath = os.path.join(os.getcwd()+'\\res\\' , 'Bootloader.bin')
         fBootloader = open(strBootloaderPath, 'rb');
     
         # Load bootloader into memory
@@ -445,7 +445,7 @@ class MemCntr:
         logger.info('%s', '######### Bios unmapped #########')
 
     def loadCartidge(self):
-        strPath = os.path.join(os.getcwd() + '\\Resource\\' , 'X.gb')
+        strPath = os.path.join(os.getcwd() + '\\res\\' , 'Tetris.gb')
         fCartidge = open(strPath, 'rb');
     
         # Load cartidge into memory

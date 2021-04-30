@@ -28,7 +28,7 @@ from opCodesRotate import   _0X07, _0X1F, cb_0X18, cb_0X19, cb_0X1A, cb_0X1B, cb
 #FORMAT = '%(funcName)s %(message)s %(filename=gb.log)s'
 #logging.basicConfig(format=FORMAT)
 #'%(funcName)s, \t\t\t%(message)s'
-logPath = os.path.join(os.getcwd()+'\\Resource\\' , 'gb.log')
+logPath = os.path.join(os.getcwd()+'\\res\\' , 'gb.log')
 logging.basicConfig(level=logging.CRITICAL, #logging.DEBUG
                     format='%(message)s',
                     filename=logPath,
