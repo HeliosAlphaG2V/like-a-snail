@@ -1,5 +1,6 @@
 :doctitle: Like a snail - LAS
 :xrefstyle: short
+:imagesdir: doc/res
 
 = {doctitle}
 
@@ -13,7 +14,7 @@ The emulator is able to run trough the Nintendo Logo (Bootloader) and to start e
 
 [#las]
 .Like a snail - Tetris
-image::res/las.png[LAS, 40%, 40%]
+image::las.png[LAS, 40%, 40%]
 
 == Useage
 
