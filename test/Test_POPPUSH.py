@@ -1,3 +1,4 @@
+import pytest
 import unittest
 import opcodes
 import memoryController
@@ -6,7 +7,7 @@ from enumRegister import R8ID
 class Test(unittest.TestCase):
     
     # Init
-    memCntr = memoryController.MemCntr()
+    memCntr = memoryController.MemCntr('', True)
     
     def test0XC5(self):
         self.resetRegister()

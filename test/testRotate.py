@@ -6,7 +6,7 @@ import memoryController
 def main():
     
     #  Init
-    memCntr = memoryController.MemCntr()
+    memCntr = memoryController.MemCntr('', True)
     tileArray = np.zeros(16384, dtype = np.int16);
     tileArrayW = np.zeros(4096, dtype = np.int16);
     spriteArray = np.zeros((40, 4), dtype=np.int16)

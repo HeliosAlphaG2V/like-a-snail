@@ -105,7 +105,7 @@ class emulatorAggregator:
         #===========================================================================
         
         #  Init
-        memCntr = memoryController.MemCntr()
+        memCntr = memoryController.MemCntr(os.path.join(os.getcwd()+'\\res\\' , 'Bootloader.bin'))
         tileArray = np.zeros(24576, dtype = np.int16); # 16384
         tileArrayW = np.zeros(4096, dtype = np.int16);
         spriteArray = np.zeros((40, 4), dtype=np.int16)

@@ -490,7 +490,7 @@ static void (*_cffi_call_python_org)(struct _cffi_externpy_s *, char *);
 /************************************************************/
 
 
-    #include "source/register.h"',
+    #include "../_register/source/register.h"',
 
 
 /************************************************************/

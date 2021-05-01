@@ -1,12 +1,14 @@
+import pytest
 import unittest
-import opcodes
 import memoryController
+import os
+
 from enumRegister import R8ID
 
 class Test(unittest.TestCase):
     
     # Init
-    memCntr = memoryController.MemCntr()
+    memCntr = memoryController.MemCntr('', True)
     
     def testCarryFlag(self):
         self.memCntr.setCarry()

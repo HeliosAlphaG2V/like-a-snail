@@ -421,8 +421,8 @@ class MemCntr:
         return item8Bit
     ##################################################    
         
-    def loadBooatloader(self):
-        strBootloaderPath = os.path.join(os.getcwd()+'\\res\\' , 'Bootloader.bin')
+    def loadBooatloader(self, path):
+        strBootloaderPath = path
         fBootloader = open(strBootloaderPath, 'rb');
     
         # Load bootloader into memory
@@ -463,7 +463,7 @@ class MemCntr:
         else:
             return None
                                         
-    def __init__(self):
+    def __init__(self, path, skip = False):
 
         if MemCntr.__instance == None:
             MemCntr.__instance = self
@@ -489,7 +489,9 @@ class MemCntr:
         
         # Bootloader
         self.setMemValue(0xFF50, 0x00) # Map bootloader
-        self.loadBooatloader()
         
-        # Cartidge
-        self.loadCartidge()
+        if not skip:
+            self.loadBooatloader(path)
+        
+            # Cartidge
+            self.loadCartidge()
