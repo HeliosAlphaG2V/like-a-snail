@@ -131,3 +131,6 @@ dmypy.json
 # GBFiles
 *.gb
 *.bin
+
+# Eclipse
+.settings

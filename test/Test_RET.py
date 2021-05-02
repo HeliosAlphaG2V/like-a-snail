@@ -1,15 +1,16 @@
 import pytest
 import unittest
-import opcodes
-import memoryController
-from enumRegister import R8ID
 
-class Test(unittest.TestCase):
+from src.opcodes import _0XC8
+from src.memoryController import MemCntr
+from src.enumRegister import R8ID
+
+class TestClass:
     
     # Init
-    memCntr = memoryController.MemCntr('', True)
+    memCntr = MemCntr('', True)
     
-    def test0XC8(self):
+    def test_0XC8(self):
         self.resetRegister()
             
         self.memCntr.setMemValue(0xFFFD, 0x95) 
@@ -61,7 +62,3 @@ class Test(unittest.TestCase):
         self.assertEqual(self.memCntr.getR8(R8ID.F), 0)
         self.assertEqual(self.memCntr.getR8(R8ID.H), 0)
         self.assertEqual(self.memCntr.getR8(R8ID.L), 0)
-        
-if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
