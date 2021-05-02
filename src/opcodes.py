@@ -5,10 +5,10 @@ import os
 #import line_profiler
 import time
 from struct import pack, unpack
-from enumRegister import R8ID
+from .enumRegister import R8ID
 
 # Remove memoryController
-import memoryController
+from .memoryController import MemCntr
 
 from opCodesSpecial import  _0X00, _0X10, _0X76, _0XF3, _0XFB
 from opCodesINC import      _0X03, _0X13, _0X23, _0X2C, _0X33, _0X34, _0X3C, _0X04, _0X14, _0X24, _0X0C, _0X1C
@@ -46,7 +46,7 @@ def logAction(strFName, strAction, aLog, x, result, flags):
         stroLXogTab = '%s\t'
     
     '04X' '08b'
-    memCntr = memoryController.MemCntr.getInstance()
+    memCntr = MemCntr.getInstance()
     
     logger = logging.getLogger() 
     logger.info(strPC + stroLXogTab + stroLXog + stroLXogFlag,
