@@ -17,7 +17,7 @@ class TestClass:
         self.memCntr.setMemValue(0xFFFC, 0x95)            
         self.memCntr.setSP(0xFFFC)
         self.memCntr.setZero()
-        opcodes._0XC8(self.memCntr)
+        _0XC8(self.memCntr)
         
         self.assertEqual(self.memCntr.getMemValue(0xFFFE), 0)
         self.assertEqual(self.memCntr.getMemValue(0xFFFD), 0x95)
