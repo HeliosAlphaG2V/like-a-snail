@@ -1,7 +1,7 @@
 #!python
 # cython: language_level=3
-from enumRegister import R8ID
-import opcodes
+from .enumRegister import R8ID
+from .log import logAction
 
 # 7th --- 0th
 # 0 0 0 0  0 0 0 0
@@ -33,7 +33,7 @@ def rlX(memCntr, Id):
     else:
         memCntr.resetZero()
         
-    opcodes.logAction('RR ' + str(Id),
+    logAction('RR ' + str(Id),
               'to MSB',
               memCntr.getCarry(),
               nReg,
@@ -67,7 +67,7 @@ def rrX(memCntr, Id):
     else:
         memCntr.resetZero()
         
-    opcodes.logAction('RR ' + str(Id),
+    logAction('RR ' + str(Id),
               'to MSB',
               memCntr.getCarry(),
               nReg,
@@ -87,7 +87,7 @@ def bitX(memCntr, Id, bit, indirect = False):
     memCntr.resetSubstract()
     memCntr.setHalfCarry()
    
-    opcodes.logAction('BIT ' + str(Id),
+    logAction('BIT ' + str(Id),
               '>&<',
               memCntr.getCarry(),
               nReg,
@@ -105,7 +105,7 @@ def setX(memCntr, Id, bit, indirect = False):
         nReg = memCntr.getR8(Id) | (1 << bit)
         memCntr.setR8(Id, nReg)
 
-    opcodes.logAction('SET bit ' + str(bit),
+    logAction('SET bit ' + str(bit),
               '>1<',
               before,
               nReg,
@@ -113,70 +113,70 @@ def setX(memCntr, Id, bit, indirect = False):
               memCntr.getR8(R8ID.F))
 
 ################### SET X, n
-def cb_0XDE(memCntr):
+def cbOXDE(memCntr):
     setX(memCntr, R8ID.H, 3, True)
     return 8
 
-def cb_0XEE(memCntr):
+def cbOXEE(memCntr):
     setX(memCntr, R8ID.H, 5, True)
     return 8
 
 ################### BIT X, n
-def cb_0X41(memCntr):
+def cbOX41(memCntr):
     bitX(memCntr, R8ID.C, 0)
     return 8
 
-def cb_0X7E(memCntr):
+def cbOX7E(memCntr):
     bitX(memCntr, R8ID.H, 7, True)
     return 8
 
 ################### RL X
-def cb_0X14(memCntr):
+def cbOX14(memCntr):
     rrX(memCntr, R8ID.H)
     return 8
 
 ################### RR X
-def cb_0X18(memCntr):
+def cbOX18(memCntr):
     rrX(memCntr, R8ID.B)
     return 8
 
 
-def cb_0X19(memCntr):
+def cbOX19(memCntr):
     rrX(memCntr, R8ID.C)
     return 8
 
     
-def cb_0X1A(memCntr):
+def cbOX1A(memCntr):
     rrX(memCntr, R8ID.D)
     return 8
 
 
-def cb_0X1B(memCntr):
+def cbOX1B(memCntr):
     rrX(memCntr, R8ID.E)
     return 8
 
     
-def cb_0X1C(memCntr):
+def cbOX1C(memCntr):
     rrX(memCntr, R8ID.H)
     return 8
 
     
-def cb_0X1D(memCntr):
+def cbOX1D(memCntr):
     rrX(memCntr, R8ID.L)
     return 8
 
 
-def cb_0X1F(memCntr):
+def cbOX1F(memCntr):
     rrX(memCntr, R8ID.A)
     return 8
 
 
 ################### RR (C) A
-def _0X1F(memCntr):
+def OX1F(memCntr):
     rrX(memCntr, R8ID.A)
     return 4
 
 ################### RL (C) A
-def _0X07(memCntr):
+def OX07(memCntr):
     rlX(memCntr, R8ID.A)
     return 4

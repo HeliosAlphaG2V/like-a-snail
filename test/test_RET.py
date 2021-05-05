@@ -1,24 +1,25 @@
 import pytest
 import unittest
 
-from src.opcodes import _0XC8
-from src.memoryController import MemCntr
-from src.enumRegister import R8ID
+from likeasnail.opcodes import OXC8
+from likeasnail.memoryController import MemCntr
+from likeasnail.enumRegister import R8ID
 
-class TestClass:
-    
+
+class TestClass(unittest.TestCase):
+
     # Init
-    memCntr = MemCntr('', True)
-    
-    def test_0XC8(self):
+    memCntr = MemCntr('', '', True)
+
+    def testOXC8(self):
         self.resetRegister()
-            
-        self.memCntr.setMemValue(0xFFFD, 0x95) 
-        self.memCntr.setMemValue(0xFFFC, 0x95)            
+
+        self.memCntr.setMemValue(0xFFFD, 0x95)
+        self.memCntr.setMemValue(0xFFFC, 0x95)
         self.memCntr.setSP(0xFFFC)
         self.memCntr.setZero()
-        _0XC8(self.memCntr)
-        
+        OXC8(self.memCntr)
+
         self.assertEqual(self.memCntr.getMemValue(0xFFFE), 0)
         self.assertEqual(self.memCntr.getMemValue(0xFFFD), 0x95)
         self.assertEqual(self.memCntr.getMemValue(0xFFFC), 0x95)
@@ -44,7 +45,7 @@ class TestClass:
         self.memCntr.setMemValue(0xFFFD, 0)
         self.memCntr.setMemValue(0xFFFC, 0)
         self.memCntr.setMemValue(0xFFFB, 0)
-         
+
         self.memCntr.setR8(R8ID.A, 0)
         self.memCntr.setR8(R8ID.B, 0)
         self.memCntr.setR8(R8ID.C, 0)
@@ -53,7 +54,7 @@ class TestClass:
         self.memCntr.setR8(R8ID.F, 0)
         self.memCntr.setR8(R8ID.H, 0)
         self.memCntr.setR8(R8ID.L, 0)
-        
+
         self.assertEqual(self.memCntr.getR8(R8ID.A), 0)
         self.assertEqual(self.memCntr.getR8(R8ID.B), 0)
         self.assertEqual(self.memCntr.getR8(R8ID.C), 0)

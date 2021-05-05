@@ -1,6 +1,6 @@
 #!python
 #cython: language_level=3
-from enumRegister import R8ID
+from .enumRegister import R8ID
 
 def subX(memCntr, currentReg):
 
@@ -24,7 +24,7 @@ def subX(memCntr, currentReg):
             memCntr._registerFlags.C = 0
 
     memCntr._registerFlags.N = 1
-    #opcodes.logAction(subX.__name__, '-', aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))    
+    #logAction(subX.__name__, '-', aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))    
 
 def subCX(memCntr, targetID, sourceID):
 
@@ -52,66 +52,66 @@ def subCX(memCntr, targetID, sourceID):
 
     memCntr._registerFlags.N = 1
     memCntr.setR8(targetID, reg)
-    #opcodes.logAction(subX.__name__, '-', aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))    
+    #logAction(subX.__name__, '-', aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))    
 
 
-def _0X90(memCntr):
+def OX90(memCntr):
     subX(memCntr, memCntr._register.B)
     return 4
 
-def _0X91(memCntr):
+def OX91(memCntr):
     subX(memCntr, memCntr._register.C)
     return 4
 
-def _0X92(memCntr):
+def OX92(memCntr):
     subX(memCntr, memCntr._register.D)
     return 4
 
-def _0X93(memCntr):
+def OX93(memCntr):
     subX(memCntr, memCntr._register.E)
     return 4
 
-def _0X94(memCntr):
+def OX94(memCntr):
     subX(memCntr, memCntr._register.H)
     return 4
 
-def _0X95(memCntr):
+def OX95(memCntr):
     subX(memCntr, memCntr._register.L)
     return 4
 
-def _0X96(memCntr):
+def OX96(memCntr):
     subX(memCntr, memCntr.getHLValue())
     return 8
 
-def _0X97(memCntr):
+def OX97(memCntr):
     subX(memCntr, memCntr._register.A)
     return 4
 
 #############################################
-def _0X99(memCntr):
+def OX99(memCntr):
     subCX(memCntr, R8ID.A, R8ID.C)
     return 4
 
-def _0X9B(memCntr):
+def OX9B(memCntr):
     subCX(memCntr, R8ID.A, R8ID.E)
     return 4
 
-def _0X9C(memCntr):
+def OX9C(memCntr):
     subCX(memCntr, R8ID.A, R8ID.H)
     return 4
 
-def _0X9D(memCntr):
+def OX9D(memCntr):
     subCX(memCntr, R8ID.A, R8ID.L)
     return 4
 
-def _0X9F(memCntr):
+def OX9F(memCntr):
     subCX(memCntr, R8ID.A, R8ID.A)
     return 4
 
 #############################################
 # Immediate Data in cartidge
 #############################################
-def _0XD6(memCntr):
+def OXD6(memCntr):
     subX(memCntr, memCntr.memory[memCntr.getPC()])
     memCntr.setPC(memCntr.getPC() + 1)
     return 8

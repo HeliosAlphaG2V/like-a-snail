@@ -1,6 +1,6 @@
 #!python
 #cython: language_level=3
-from enumRegister import R8ID
+from .enumRegister import R8ID
 
 def xorX(memCntr, x):
     #aLog = memCntr.getR8(R8ID.A)
@@ -17,7 +17,7 @@ def xorX(memCntr, x):
     else:
         memCntr.resetZero()
               
-#     opcodes.logAction(xorX.__name__,
+#     logAction(xorX.__name__,
 #                       '*',
 #                       aLog,
 #                       x,
@@ -25,38 +25,38 @@ def xorX(memCntr, x):
 #                       memCntr.getR8(R8ID.F)
 #                       )    
         
-def _0XA8(memCntr):
+def OXA8(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.B))
     return 4
     
-def _0XA9(memCntr):
+def OXA9(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.C))
     return 4
     
-def _0XAA(memCntr):
+def OXAA(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.D))
     return 4
    
-def _0XAB(memCntr):
+def OXAB(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.E))
     return 4
     
-def _0XAC(memCntr):
+def OXAC(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.H))
     return 4
        
-def _0XAD(memCntr):
+def OXAD(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.L))
     return 4
     
-def _0XAE(memCntr):
+def OXAE(memCntr):
     xorX(memCntr, memCntr.getR16FromR8(R8ID.H))
     return 8
 
-def _0XAF(memCntr):
+def OXAF(memCntr):
     xorX(memCntr, memCntr.getR8(R8ID.A))
     return 4
 
-def _0XEE(memCntr):
+def OXEE(memCntr):
     xorX(memCntr, memCntr.getNextParam())
     return 8

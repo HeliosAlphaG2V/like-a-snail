@@ -1,14 +1,14 @@
 import pytest
 import unittest
-import memoryController
+from likeasnail.memoryController import MemCntr
 import os
 
-from enumRegister import R8ID
+from likeasnail.enumRegister import R8ID
 
 class Test(unittest.TestCase):
     
     # Init
-    memCntr = memoryController.MemCntr('', True)
+    memCntr = MemCntr('', '', True)
     
     def testCarryFlag(self):
         self.memCntr.setCarry()

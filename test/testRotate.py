@@ -1,12 +1,12 @@
 from opCodesRotate import rlX
-from enumRegister import R8ID
+from likeasnail.enumRegister import R8ID
 import numpy as np
-import memoryController
+from likeasnail.memoryController import MemCntr
 
 def main():
     
     #  Init
-    memCntr = memoryController.MemCntr('', True)
+    memCntr = MemCntr('', '', True)
     tileArray = np.zeros(16384, dtype = np.int16);
     tileArrayW = np.zeros(4096, dtype = np.int16);
     spriteArray = np.zeros((40, 4), dtype=np.int16)

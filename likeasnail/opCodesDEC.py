@@ -1,7 +1,7 @@
 #!python
 #cython: language_level=3
-from enumRegister import R8ID
-import opcodes
+from .enumRegister import R8ID
+from .log import logAction
 minimum = 0xFF
 
 def decX(memCntr, x):
@@ -25,7 +25,7 @@ def decX(memCntr, x):
         memCntr._registerFlags.Z = 0   
 
     return x
-    opcodes.logAction(decX.__name__,
+    logAction(decX.__name__,
                       '-',
                       0,
                       0x01,
@@ -46,7 +46,7 @@ def decX16(memCntr, ID):
         
     memCntr.setR16FromR8(ID, x)
  
-    opcodes.logAction(decX16.__name__,
+    logAction(decX16.__name__,
                       '-',
                       xLog,
                       0x01,
@@ -55,25 +55,25 @@ def decX16(memCntr, ID):
                       )
         
 ################### R16
-def _0X0B(memCntr):
+def OX0B(memCntr):
     decX16(memCntr, R8ID.B)
     return 8
 
-def _0X1B(memCntr):
+def OX1B(memCntr):
     decX16(memCntr, R8ID.D)
     return 8
 
-def _0X2B(memCntr):
+def OX2B(memCntr):
     decX16(memCntr, R8ID.H)
     return 8
 
-def _0X3B(memCntr):
+def OX3B(memCntr):
     sp = memCntr.getSP()
     sp -= 1
     memCntr.setSP(sp)
     return 8
 
-def _0X35(memCntr):
+def OX35(memCntr):
     adressHL = memCntr.getR16FromR8(R8ID.H)
     
     value = memCntr.getMemValue( adressHL )
@@ -90,7 +90,7 @@ def _0X35(memCntr):
         
     memCntr.setMemValue( adressHL, value )
     
-#     opcodes.logAction('DEC (HL)',
+#     logAction('DEC (HL)',
 #                       '|',
 #                       adressHL,
 #                       logValue,
@@ -100,30 +100,30 @@ def _0X35(memCntr):
     return 12
 
 ################### R8
-def _0X05(memCntr):
+def OX05(memCntr):
     memCntr._register.B = decX(memCntr, memCntr._register.B)
     return 4
 
-def _0X15(memCntr):
+def OX15(memCntr):
     memCntr._register.D = decX(memCntr, memCntr._register.D)  
     return 4
 
-def _0X0D(memCntr):
+def OX0D(memCntr):
     memCntr._register.C = decX(memCntr, memCntr._register.C)
     return 4
 
-def _0X1D(memCntr):
+def OX1D(memCntr):
     memCntr._register.E = decX(memCntr, memCntr._register.E)
     return 4
 
-def _0X25(memCntr):
+def OX25(memCntr):
     memCntr._register.H = decX(memCntr, memCntr._register.H)
     return 4
 
-def _0X2D(memCntr):
+def OX2D(memCntr):
     memCntr._register.L = decX(memCntr, memCntr._register.L)
     return 4
 
-def _0X3D(memCntr):
+def OX3D(memCntr):
     memCntr._register.A = decX(memCntr, memCntr._register.A)
     return 4

@@ -1,5 +1,5 @@
-import opcodes
-from enumRegister import R8ID
+from .log import logAction
+from .enumRegister import R8ID
 
 def andX(memCntr, x):
     a = memCntr.getR8(R8ID.A)
@@ -17,40 +17,40 @@ def andX(memCntr, x):
     else:
         memCntr.resetZero() 
     
-    opcodes.logAction(andX.__name__, '&',aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))       
+    logAction(andX.__name__, '&',aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))       
     
-def _0XA0(memCntr):
+def OXA0(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.B))  
     return 4
 
-def _0XA1(memCntr):
+def OXA1(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.C))  
     return 4
 
-def _0XA2(memCntr):
+def OXA2(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.D))  
     return 4
 
-def _0XA3(memCntr):
+def OXA3(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.E))  
     return 4
 
-def _0XA4(memCntr):
+def OXA4(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.H))  
     return 4
 
-def _0XA5(memCntr):
+def OXA5(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.L))  
     return 4  
 
-def _0XA6(memCntr):
+def OXA6(memCntr):
     andX(memCntr, memCntr.getHLValue())
     return 8
 
-def _0XA7(memCntr):
+def OXA7(memCntr):
     andX(memCntr, memCntr.getR8(R8ID.A))  
     return 4
 
-def _0XE6(memCntr):
+def OXE6(memCntr):
     andX(memCntr, memCntr.getNextParam())  
     return 8
