@@ -5,9 +5,10 @@ from likeasnail.memoryController import MemCntr
 
 
 @pytest.helpers.register
-def allOtherRegisterZero(memCntr, R1, R2):
-    for i in range(R8ID.A, R8ID.L):
+def allOtherRegisterZero(memCntr, R1=99, R2=99):
+    for i in range(0, 8):
         if memCntr.getR8(i) != 0 and i != R1 and i != R2:
+            print('Register ' + str(i) + ' failed, value: ' + str(memCntr.getR8(i)))
             return False
 
     return True

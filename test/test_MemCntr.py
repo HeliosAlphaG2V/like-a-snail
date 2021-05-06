@@ -1,62 +1,30 @@
 import pytest
-import unittest
 
-from likeasnail.memoryController import MemCntr
 from likeasnail.enumRegister import R8ID
 
 
-class Test(unittest.TestCase):
+class TestMemCntr():
 
-    # Init
-    memCntr = MemCntr('', '', True)
+    def testInit(self, getMemoryController):
+        assert pytest.helpers.allOtherRegisterZero(getMemoryController) == True
 
-    def testSetR8(self):
-        self.memCntr.setR8(R8ID.F, 0xFF)
-        self.assertEqual(self.memCntr.getR8(R8ID.F), 0xF0)
+    def testSetR8RegisterF(self, getMemoryController):
+        getMemoryController.setR8(R8ID.F, 0xFF)
+        assert getMemoryController.getR8(R8ID.F) == 0xF0
+        assert pytest.helpers.allOtherRegisterZero(getMemoryController, R8ID.F, R8ID.F) == True
 
-        self.memCntr.setR8(R8ID.F, 0xAF)
-        self.assertEqual(self.memCntr.getR8(R8ID.F), 0xA0)
+        getMemoryController.setR8(R8ID.F, 0xAF)
+        assert getMemoryController.getR8(R8ID.F) == 0xA0
+        assert pytest.helpers.allOtherRegisterZero(getMemoryController, R8ID.F, R8ID.F) == True
 
-        self.memCntr.setR8(R8ID.F, 0x00)
-        self.assertEqual(self.memCntr.getR8(R8ID.F), 0x00)
+        getMemoryController.setR8(R8ID.F, 0x00)
+        assert getMemoryController.getR8(R8ID.F) == 0x00
+        assert pytest.helpers.allOtherRegisterZero(getMemoryController, R8ID.F, R8ID.F) == True
 
-        self.memCntr.setR8(R8ID.F, 0x10)
-        self.assertEqual(self.memCntr.getR8(R8ID.F), 0x10)
+        getMemoryController.setR8(R8ID.F, 0x10)
+        assert getMemoryController.getR8(R8ID.F) == 0x10
+        assert pytest.helpers.allOtherRegisterZero(getMemoryController, R8ID.F, R8ID.F) == True
 
-    def testGetAsR16(self):
-        self.assertEqual(self.memCntr.getAsR16(0x95, 0x95), 0x9595)
-        self.assertEqual(self.memCntr.getAsR16(0x44, 0x23), 0x4423)
-
-    def resetRegister(self):
-        self.memCntr.setPC(0)
-        self.memCntr.setSP(0xFFFE)
-        self.memCntr.setMemValue(0x0, 0)
-        self.memCntr.setMemValue(0x1, 0)
-        self.memCntr.setMemValue(0x2, 0)
-        self.memCntr.setMemValue(0xFFFE, 0)
-        self.memCntr.setMemValue(0xFFFD, 0)
-        self.memCntr.setMemValue(0xFFFC, 0)
-        self.memCntr.setMemValue(0xFFFB, 0)
-
-        self.memCntr.setR8(R8ID.A, 0)
-        self.memCntr.setR8(R8ID.B, 0)
-        self.memCntr.setR8(R8ID.C, 0)
-        self.memCntr.setR8(R8ID.D, 0)
-        self.memCntr.setR8(R8ID.E, 0)
-        self.memCntr.setR8(R8ID.F, 0)
-        self.memCntr.setR8(R8ID.H, 0)
-        self.memCntr.setR8(R8ID.L, 0)
-
-        self.assertEqual(self.memCntr.getR8(R8ID.A), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.B), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.C), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.D), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.E), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.F), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.H), 0)
-        self.assertEqual(self.memCntr.getR8(R8ID.L), 0)
-
-
-if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testName']
-    unittest.main()
+    def testGetAsR16(self, getMemoryController):
+        assert getMemoryController.getAsR16(0x95, 0x95) == 0x9595
+        assert getMemoryController.getAsR16(0x44, 0x23) == 0x4423

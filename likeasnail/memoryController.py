@@ -484,8 +484,6 @@ class MemCntr:
 
         if MemCntr.__instance == None:
             MemCntr.__instance = self
-            print(MemCntr.__instance)
-            print('NONE' + str(MemCntr._register.C))
 
         # System ON simulation - Fill registers with random data
         for i in range(0, 0x10000):
@@ -498,7 +496,7 @@ class MemCntr:
         self.register16Bit.append(randint(0x0000, 0xFFFF))
         self.register16Bit.append(randint(0x0000, 0xFFFF))
 
-        # Initial V-Blank (Will be set by bios)
+        # Initial V-Blank (Set by bootloader)
         # self.memory[0xFF0F] = 0xE1
 
         # Boot routine
@@ -506,11 +504,22 @@ class MemCntr:
         self.register16Bit[1] = 0xFFFF
         self.registers[R8ID.F] = 0x00
 
+        self._register.A = 0
+        self._register.B = 0
+        self._register.C = 0
+        self._register.D = 0
+        self._register.E = 0
+        self._register.H = 0
+        self._register.L = 0
+
+        self._registerFlags.Z = 0
+        self._registerFlags.N = 0
+        self._registerFlags.H = 0
+        self._registerFlags.C = 0
+
         # Bootloader
         self.setMemValue(0xFF50, 0x00)  # Map bootloader
 
         if not skip:
             self.loadBootloader(boot)
-
-            # Cartidge
             self.loadCartidge(rom)
