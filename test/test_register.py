@@ -1,13 +1,13 @@
-import pytest
 import unittest
 
-from likeasnail.memoryController import MemCntr
+import pytest
+
 from likeasnail.enumRegister import R8ID
+from likeasnail.memoryController import MemCntr
 
 
 class Test(unittest.TestCase):
 
-    @pytest.mark.slow
     def testARegister(self):
         MemCntr.resetInstance()
         memCntr = MemCntr('', '', True)
@@ -21,7 +21,6 @@ class Test(unittest.TestCase):
         self.assertEqual(memCntr.getR8(R8ID.H), 0)
         self.assertEqual(memCntr.getR8(R8ID.L), 0)
 
-    @pytest.mark.slow
     def testBRegister(self):
         MemCntr.resetInstance()
         memCntr = MemCntr('', '', True)
