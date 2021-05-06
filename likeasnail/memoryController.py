@@ -1,18 +1,18 @@
 #!python
 # cython: language_level=3
-import sys
-import os
 import array
 import logging
-import struct
-from random import randint
+import os
 from os.path import normpath
-# from _registerFlags.lib import registerFlags #@UnresolvedImport
+from random import randint
+import struct
+import sys
 
-from register.lib import registerFlags, registerC, getAF, getBC, getHL, getDE, setAF, setBC, setDE, setHL
 from likeasnail.enumRegister import R8ID
+from register.lib import registerFlags, registerC, getAF, getBC, getHL, getDE, setAF, setBC, setDE, setHL
 
 
+# from _registerFlags.lib import registerFlags #@UnresolvedImport
 class MemCntr:
     __instance = None
 
@@ -480,15 +480,12 @@ class MemCntr:
         else:
             return None
 
-    @staticmethod
-    def resetInstance():
-        if MemCntr.__instance != None:
-            MemCntr.__instance = None
-
     def __init__(self, boot, rom, skip=False):
 
         if MemCntr.__instance == None:
             MemCntr.__instance = self
+            print(MemCntr.__instance)
+            print('NONE' + str(MemCntr._register.C))
 
         # System ON simulation - Fill registers with random data
         for i in range(0, 0x10000):

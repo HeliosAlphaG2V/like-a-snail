@@ -1,8 +1,9 @@
-import pytest
 import unittest
-from likeasnail.opcodes import OX48
-from likeasnail.memoryController import MemCntr
+import pytest
+
 from likeasnail.enumRegister import R8ID
+from likeasnail.memoryController import MemCntr
+from likeasnail.opcodes import OX48, OX49, OX4A, OX4B, OX4C, OX4D, OX4E, OX4F
 
 
 class Test(unittest.TestCase):
