@@ -70,10 +70,8 @@ void setHL(int r16);
 #path.join(path.normpath(path.join(getcwd())), 'register\\source\\register.c')
 ffibuilder.set_source("lasregister",  # name of the output C extension
                       person_header,
-                      # includes pi.c as additional sources
-                      sources=[path.join(path.normpath(
-                          path.join(getcwd())), 'lasregister\\source\\register.c')],
-                      libraries=[])    # on Unix, link with the math library
+                      sources=[path.join(path.normpath(path.join(getcwd())), path.normpath('lasregister/source/register.c'))],
+                      libraries=[])
 
 if __name__ == "__main__":
     ffibuilder.compile(verbose=True)  # tmpdir="../register/",
