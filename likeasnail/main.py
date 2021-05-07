@@ -27,20 +27,21 @@
     ##############################
 '''
 #import line_profiler
+import logging
 import os
 import sys
-import numpy as np
-import pygame
-import logging
 import time
-#from pygame.locals import APPACTIVE
+
+import pygame
 
 from likeasnail.enumRegister import R8ID
+from likeasnail.log import logAction
 from likeasnail.memoryController import MemCntr
 from likeasnail.opcodes import fetchOpCode
-from likeasnail.log import logAction
+import numpy as np
 
 
+#from pygame.locals import APPACTIVE
 class emulatorAggregator:
 
     base_font = ""
@@ -116,8 +117,7 @@ class emulatorAggregator:
         pygame.draw.rect(sfBorder, (128, 128, 128), (0, 0, 160, 144), 1)
         rectBorder = rectBorder.move(screenOffsetX, screenOffsetY)
 
-        imgGB = pygame.image.load(os.path.join(
-            os.getcwd() + '\\res\\', 'gb.png'))
+        imgGB = pygame.image.load(os.path.join(os.getcwd(), os.path.normpath('../res/gb.png')))
 
     #    asyncio.set_event_loop(loop)
 

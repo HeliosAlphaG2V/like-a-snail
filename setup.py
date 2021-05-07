@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages, Extension
 
-setup(name="Like s snail - LAS",
+setup(name="Like a snail - LAS",
       version='0.0.1',
       packages=['likeasnail'],
       package_dir={'likeasnail': 'likeasnail'},

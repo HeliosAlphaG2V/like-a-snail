@@ -8,11 +8,10 @@ from random import randint
 import struct
 import sys
 
+from lasregister.lib import registerFlags, registerC, getAF, getBC, getHL, getDE, setAF, setBC, setDE, setHL
 from likeasnail.enumRegister import R8ID
-from register.lib import registerFlags, registerC, getAF, getBC, getHL, getDE, setAF, setBC, setDE, setHL
 
 
-# from _registerFlags.lib import registerFlags #@UnresolvedImport
 class MemCntr:
     __instance = None
 
