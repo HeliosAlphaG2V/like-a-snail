@@ -1,0 +1,6 @@
+flake8
+pytest
+pytest-helpers-namespace
+cffi
+pygame
+numpy

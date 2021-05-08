@@ -32,6 +32,7 @@ import os
 import sys
 import time
 
+from importlib_resources import files, as_file
 import pygame
 
 from likeasnail.enumRegister import R8ID
@@ -117,7 +118,7 @@ class emulatorAggregator:
         pygame.draw.rect(sfBorder, (128, 128, 128), (0, 0, 160, 144), 1)
         rectBorder = rectBorder.move(screenOffsetX, screenOffsetY)
 
-        imgGB = pygame.image.load(os.path.join(os.getcwd(), os.path.normpath('../res/gb.png')))
+        imgGB = pygame.image.load(files('res').joinpath('gb.png'))
 
     #    asyncio.set_event_loop(loop)
 

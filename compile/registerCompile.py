@@ -74,4 +74,4 @@ ffibuilder.set_source("lasregister",  # name of the output C extension
                       libraries=[])
 
 if __name__ == "__main__":
-    ffibuilder.compile(tmpdir='lasregister/tmp', verbose=True, target='lasregister.*')
+    ffibuilder.compile(tmpdir='lasregister', verbose=True, target='lasregister.*')

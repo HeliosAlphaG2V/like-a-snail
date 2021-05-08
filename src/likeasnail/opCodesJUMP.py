@@ -1,9 +1,9 @@
 #!python
 #cython: language_level=3
 
+from struct import pack, unpack
 import sys
 
-from struct import pack, unpack
 from .enumRegister import R8ID
 from .log import logAction
 
@@ -228,10 +228,6 @@ def OXCD(memCntr):
               memCntr.getAsR16(param2, param1),
               memCntr.getPC(),
               memCntr.getR8(R8ID.F))
-
-    print(str(param2))
-    print(str(param1))
-    print(str(pcLog))
 
     return 24
 
