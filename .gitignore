@@ -128,9 +128,13 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# GBFiles
-*.gb
-*.bin
-
 # Eclipse
 .settings
+
+# Locally compiled extensions
+*.lib
+*.exp
+*.obj
+*.dll
+*.pyd
+/_*/*.*
