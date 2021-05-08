@@ -11,3 +11,13 @@ setup(name="Like a snail - LAS",
       cffi_modules=["./compile/registerCompile.py:ffibuilder"],
       install_requires=["cffi>=1.0.0", "pygame>=2.0.1"]
       )
+
+# Cythonize
+# from Cython.Build import cythonize
+#
+# ext_modules=cythonize(["enumRegister.py",
+#                        "opcodes.py",
+#                        "memoryController.py",
+#                        "opCodes*.py",
+#                        "main.py"
+#                        ])

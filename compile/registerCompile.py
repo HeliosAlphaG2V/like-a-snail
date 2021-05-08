@@ -67,11 +67,10 @@ void setHL(int r16);
 
 """
 
-#path.join(path.normpath(path.join(getcwd())), 'register\\source\\register.c')
-ffibuilder.set_source("lasregister",  # name of the output C extension
+ffibuilder.set_source("_lasregister",  # name of the output C extension
                       person_header,
-                      sources=[path.join(path.normpath(path.join(getcwd())), path.normpath('lasregister/source/register.c'))],
+                      sources=[path.join(getcwd(), path.normpath('_lasregister/src/register.c'))],
                       libraries=[])
 
 if __name__ == "__main__":
-    ffibuilder.compile(tmpdir='lasregister', verbose=True, target='lasregister.*')
+    ffibuilder.compile(tmpdir='_lasregister', verbose=True, target='_lasregister.*')
