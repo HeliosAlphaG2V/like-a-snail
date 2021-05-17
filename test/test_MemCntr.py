@@ -3,6 +3,7 @@ import pytest
 from likeasnail.enumRegister import R8ID
 
 
+@pytest.mark.memCntr
 class TestMemCntr():
 
     def testInit(self, getMemoryController):
@@ -28,3 +29,9 @@ class TestMemCntr():
     def testGetAsR16(self, getMemoryController):
         assert getMemoryController.getAsR16(0x95, 0x95) == 0x9595
         assert getMemoryController.getAsR16(0x44, 0x23) == 0x4423
+
+    def testGetTwoR8FromR16(self, getMemoryController):
+        r16 = getMemoryController.getTwoR8FromR16(0xFFFE)
+
+        assert r16[0] == 0xFF
+        assert r16[1] == 0xFE

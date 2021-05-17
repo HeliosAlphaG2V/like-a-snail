@@ -4,7 +4,7 @@ from likeasnail.enumRegister import R8ID
 from likeasnail.opcodes import OX40, OX41, OX42, OX43, OX44, OX45, OX46, OX47
 
 
-@pytest.mark.ldCommands
+@pytest.mark.ldCmds
 class TestLDBX():
 
     def testOX40(self, getMemoryController):
@@ -18,6 +18,7 @@ class TestLDBX():
         getMemoryController.setR8(R8ID.C, 95)
         OX41(getMemoryController)
 
+        assert getMemoryController.getR8(R8ID.B) == 95
         assert getMemoryController.getR8(R8ID.C) == 95
         assert pytest.helpers.allOtherRegisterZero(getMemoryController, R8ID.B, R8ID.C) == True
 
