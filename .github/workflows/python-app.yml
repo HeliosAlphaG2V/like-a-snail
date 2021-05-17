@@ -37,6 +37,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
 
-	steps:
+    steps:
     - name: Test with pytest
       run: pytest -r A
