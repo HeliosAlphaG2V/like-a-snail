@@ -5,14 +5,22 @@ maxIncX = 0x100
 
 
 def incX(memCntr, ID):
-    reg = memCntr.getR8(ID) + 1
+
+    reg = memCntr.getR8(ID)
+
+    # Halfcarry from 3rd to 4th bit
+    if((((reg & 0x0F) + (0x01 & 0x0F)) & (0x10)) >= 0x10):
+        memCntr.setHalfCarry()
+    else:
+        memCntr.resetHalfCarry()
+
+    reg += 1
 
     # Overflow
     if(reg == maxIncX):
         reg = 0
 
     memCntr.resetSubstract()
-    # ToDo: Set if carry from Bit 3 => H = 1!
 
     if(reg == 0):
         memCntr._registerFlags.Z = 1
@@ -68,8 +76,11 @@ def OX23(memCntr):
 
 
 def OX33(memCntr):
-    sp = memCntr.getSP()
-    sp += 1
+    sp = 1 + memCntr.getSP()
+
+    if(sp == 0x10000):
+        sp = 0
+
     memCntr.setSP(sp)
     return 8
 

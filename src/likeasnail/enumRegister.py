@@ -1,6 +1,7 @@
 #!python
 #cython: language_level=3
 
+
 class R8ID:
     A = 0
     F = 1
@@ -12,3 +13,8 @@ class R8ID:
     L = 7
     SP = 8
     PC = 10
+
+
+class R8TOR16:
+    UPPER = 0
+    LOWER = 1

@@ -1,34 +1,38 @@
 # !python
 # cython: language_level=3
 
+from _ast import Or
 import logging
 import os
 from struct import pack, unpack
+import sys
 
 from .enumRegister import R8ID
-#from .memoryController import MemCntr
-from .opCodesSpecial import OX00, OX10, OX76, OXF3, OXFB
-from .opCodesINC import OX03, OX13, OX23, OX2C, OX33, OX34, OX3C, OX04, OX14, OX24, OX0C, OX1C
-from .opCodesDEC import OX05, OX15, OX0D, OX1D, OX25, OX2B, OX2D, OX35, OX3D, OX0B, OX1B
-from .opCodesADD import OX80, OX81, OX82, OX83, OX84, OX85, OX86, OX87, OX89, OX8B, OX8D, OX8F, OXC6, OX19, OX29, OXCE, OX39
-from .opCodesSUB import OX90, OX91, OX92, OX93, OX94, OX95, OX96, OX97, OXD6, OX99, OX9B, OX9D, OX9F, OX9C
-from .opCodesAND import OXA0, OXA1, OXA2, OXA3, OXA4, OXA5, OXA6, OXA7, OXE6
-from .opCodesXOR import OXA8, OXA9, OXAA, OXAB, OXAC, OXAD, OXAE, OXAF, OXEE
-from .opCodesOR import OXB0, OXB1, OXB2, OXB3, OXB4, OXB5, OXB6, OXB7, OXF6
-from .opCodesCP import OXB8, OXB9, OXBA, OXBB, OXBC, OXBD, OXBE, OXBF, OXFE
-from .opCodesJUMP import OX18, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, OXC7, OXC8, OXC9, OXCA, OXDA, OXCD, OXCF, OXD7, OXD9, OXDF, OXE7, OXE9, OXEF, OXF7, OXFF
-from .opCodesPushPop import OXC1, OXD1, OXE1, OXF1, OXC5, OXD5, OXE5, OXF5
-from .opCodesRotate import OX07, OX1F, cbOX18, cbOX19, cbOX1A, cbOX1B, cbOX1C, cbOX1D, cbOX1F, cbOX14, cbOX41, cbOXDE, cbOXEE, cbOX7E
-from .log import logAction
-# lp = line_profiler.LineProfiler()
+from .log import logState
+from .opCodesADC import (OX89, OX8B, OX8D, OX8F, OXCE, OX8E)
+from .opCodesADD import (OX80, OX81, OX82, OX83, OX84, OX85, OX86, OX87, OXC6, OX19, OX29, OX39, OXE8, OXF8, OX09)
+from .opCodesAND import (OXA0, OXA1, OXA2, OXA3, OXA4, OXA5, OXA6, OXA7, OXE6)
+from .opCodesCP import (OXB8, OXB9, OXBA, OXBB, OXBC, OXBD, OXBE, OXBF, OXFE)
+from .opCodesDEC import (OX05, OX15, OX0D, OX1D, OX25, OX2B, OX2D, OX35, OX3D, OX0B, OX1B, OX3B)
+from .opCodesINC import (OX03, OX13, OX23, OX2C, OX33, OX34, OX3C, OX04, OX14, OX24, OX0C, OX1C)
+from .opCodesJUMP import (OX18, OXD0, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, OXC7, OXC8, OXC9, OXCA,
+                          OXDA, OXCD, OXCF, OXD7, OXD9, OXDF, OXE7, OXE9, OXEF, OXF7, OXFF, OXD8, OXC2)
+from .opCodesOR import (OXB0, OXB1, OXB2, OXB3, OXB4, OXB5, OXB6, OXB7, OXF6)
+from .opCodesPushPop import (OXC1, OXD1, OXE1, OXF1, OXC5, OXD5, OXE5, OXF5)
+from .opCodesRotate import (OX07, OX0F, OX1F, cbOX18, cbOX19, cbOX1A, cbOX1B, cbOX1C, cbOX1D,
+                            cbOX1F, cbOX47, cbOX61, cbOX69, cbOX3F, cbOX40, cbOX41, cbOX42, cbOX43, cbOX44, cbOX42, cbOX86, cbOX14, cbOX48, cbOX5F, cbOX6F, cbOX77, cbOX41, cbOXDE, cbOX68, cbOX60, cbOX58, cbOXEE, cbOX7E, cbOX27, cbOX7E, cbOX7F, cbOX50)
+from .opCodesSUB import (OX90, OX91, OX92, OX93, OX94, OX95, OX96, OX97, OXD6, OX99, OX9B, OX9D, OX9F, OX9C)
+from .opCodesSpecial import (OX00, OX10, OX76, OXF3, OXFB, OX27, OX3F)
+from .opCodesXOR import (OXA8, OXA9, OXAA, OXAB, OXAC, OXAD, OXAE, OXAF, OXEE)
 
+
+#from .opCodesJUMP import OX18, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, OXC7, OXC8, OXC9, OXCA, OXDA, OXCD, OXCF, OXD7, OXD9, OXDF, OXE7, OXE9, OXEF, OXF7, OXFF
+#from .memoryController import MemCntr
+# lp = line_profiler.LineProfiler()
 # FORMAT = '%(funcName)s %(message)s %(filename=gb.log)s'
 # logging.basicConfig(format=FORMAT)
 # '%(funcName)s, \t\t\t%(message)s'
-
 # # Helper functions
-
-
 def roLX(memCntr, ID):
     x = memCntr.getR8(ID)
     xLog = x
@@ -54,12 +58,12 @@ def roLX(memCntr, ID):
     memCntr.resetHalfCarry()
     memCntr.resetSubstract()
 
-    logAction(roLX.__name__,
-              '{',
-              xLog,
-              x,
-              memCntr.getR8(ID),
-              memCntr.getR8(R8ID.F))
+    # logAction(roLX.__name__,
+    #           '{',
+    #           xLog,
+    #           x,
+    #           memCntr.getR8(ID),
+    #           memCntr.getR8(R8ID.F))
 
 
 # NOP
@@ -80,6 +84,30 @@ def OXF4(*_):
 
 
 def OXFC(*_):
+    return 0
+
+
+def OXEC(*_):
+    return 0
+
+
+def OXED(*_):
+    return 0
+
+
+def OXEB(*_):
+    return 0
+
+
+def OXDD(*_):
+    return 0
+
+
+def OXDB(*_):
+    return 0
+
+
+def OXFD(*_):
     return 0
 
 
@@ -105,15 +133,15 @@ def OX08(memCntr):
 
 # LD SP, HL
 def OXF9(memCntr):
-    hl = memCntr.getAsR16(memCntr.getR8(R8ID.H), memCntr.getR8(R8ID.L))
+    hl = memCntr.getR16FromR8(R8ID.H)
     memCntr.setSP(hl)
 
-    logAction('SP, HL',
-              '<>',
-              0,
-              hl,
-              memCntr.getSP(),
-              memCntr.getR8(R8ID.F))
+    # logAction('SP, HL',
+    #           '<>',
+    #           0,
+    #           hl,
+    #           memCntr.getSP(),
+    #           memCntr.getR8(R8ID.F))
     return 8
 
 
@@ -163,12 +191,12 @@ def OX32(memCntr):
     hl -= 1
     memCntr.setR16FromR8(R8ID.H, hl)
 
-    logAction(OX32.__name__,
-              '|',
-              hl,
-              memCntr.getR8(R8ID.A),
-              memCntr.getMemValue(hl + 1),
-              memCntr.getR8(R8ID.F))
+    # logAction(OX32.__name__,
+    #           '|',
+    #           hl,
+    #           memCntr.getR8(R8ID.A),
+    #           memCntr.getMemValue(hl + 1),
+    #           memCntr.getR8(R8ID.F))
 
     return 8
 
@@ -193,6 +221,10 @@ def OX3A(memCntr):
     memCntr.setR8(R8ID.A, memValue)
 
     hl -= 1
+
+    if(hl == -1):
+        hl = 0xFFFF
+
     memCntr.setR16FromR8(R8ID.H, hl)
     return 8
 
@@ -203,13 +235,13 @@ def LDHLx(memCntr, x):
     xLog = memCntr.getMemValue(hl)
     memCntr.setMemValue(hl, x)
 
-    logAction(LDxHL.__name__,
-              '=',
-              xLog,
-              x,
-              memCntr.getMemValue(hl),
-              memCntr.getR8(R8ID.F)
-              )
+    # logAction(LDxHL.__name__,
+    #           '=',
+    #           xLog,
+    #           x,
+    #           memCntr.getMemValue(hl),
+    #           memCntr.getR8(R8ID.F)
+    #           )
 
 
 def OX36(memCntr):
@@ -259,13 +291,13 @@ def LDxHL(memCntr, ID):
     xLog = memCntr.getR8(ID)
     memCntr.setR8(ID, memValue)
 
-    logAction(LDxHL.__name__,
-              '=',
-              xLog,
-              memValue,
-              memCntr.getR8(ID),
-              memCntr.getR8(R8ID.F)
-              )
+    # logAction(LDxHL.__name__,
+    #           '=',
+    #           xLog,
+    #           memValue,
+    #           memCntr.getR8(ID),
+    #           memCntr.getR8(R8ID.F)
+    #           )
 
 
 def OX46(memCntr):
@@ -315,13 +347,13 @@ def OXF0(memCntr):
                                          memCntr.memory[memCntr._register.PC]]
     memCntr._register.PC = memCntr._register.PC + 1
 
-    logAction("OXF0",
-              '->',
-              0xFF00 | memCntr.memory[memCntr._register.PC],
-              memCntr.getMemValue(
-                  0xFF00 | memCntr.memory[memCntr._register.PC]),
-              memCntr.getR8(R8ID.A),
-              memCntr.getR8(R8ID.F))
+    # logAction("OXF0",
+    #           '->',
+    #           0xFF00 | memCntr.memory[memCntr._register.PC],
+    #           memCntr.getMemValue(
+    #               0xFF00 | memCntr.memory[memCntr._register.PC]),
+    #           memCntr.getR8(R8ID.A),
+    #           memCntr.getR8(R8ID.F))
     return 12
 
 
@@ -369,13 +401,13 @@ def LD_R8(memCntr, ID):
     oldLog = memCntr.getR8(ID)
     memCntr.setR8(ID, param)
 
-    logAction(LD_R8.__name__,
-              '<',
-              oldLog,
-              param,
-              memCntr.getR8(ID),
-              memCntr.getR8(R8ID.F)
-              )
+    # logAction(LD_R8.__name__,
+    #           '<',
+    #           oldLog,
+    #           param,
+    #           memCntr.getR8(ID),
+    #           memCntr.getR8(R8ID.F)
+    #           )
 
 
 def OX06(memCntr):
@@ -425,13 +457,13 @@ def LD_RToR(memCntr, Rtarget, Rsource):
 
     # memCntr.registers[Rtarget] = memCntr.registers[Rsource]
     memCntr.setR8(Rtarget, memCntr.getR8(Rsource))
-    logAction(LD_RToR.__name__,
-              '<',
-              oldLog,
-              memCntr.getR8(Rsource),
-              memCntr.getR8(Rtarget),
-              memCntr.getR8(R8ID.F)
-              )
+    # logAction(LD_RToR.__name__,
+    #           '<',
+    #           oldLog,
+    #           memCntr.getR8(Rsource),
+    #           memCntr.getR8(Rtarget),
+    #           memCntr.getR8(R8ID.F)
+    #           )
 
 
 # LD B, X
@@ -702,9 +734,11 @@ def OX2F(memCntr):
         aNew = bArray[1]
 
     memCntr.setR8(R8ID.A, aNew)
+    memCntr.setHalfCarry()
+    memCntr.setSubstract()
 
-    logAction(OX2F.__name__, '~', a, aNew,
-              memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))
+    # logAction(OX2F.__name__, '~', a, aNew,
+    #           memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))
     return 4
 
 
@@ -730,12 +764,12 @@ def OX31(memCntr):
         memCntr.memory[memCntr._register.PC + 1], memCntr.memory[memCntr._register.PC])
     memCntr._register.PC = memCntr._register.PC + 2
     memCntr.setSP(sp)
-    logAction('SP d16',
-              '<>',
-              memCntr.memory[memCntr._register.PC + 1],
-              memCntr.memory[memCntr._register.PC],
-              sp,
-              memCntr.getR8(R8ID.F))
+    # logAction('SP d16',
+    #           '<>',
+    #           memCntr.memory[memCntr._register.PC + 1],
+    #           memCntr.memory[memCntr._register.PC],
+    #           sp,
+    #           memCntr.getR8(R8ID.F))
     return 12
 #     memCntr.setSP(
 #         int.from_bytes(
@@ -751,12 +785,12 @@ def OX21(memCntr):
     memCntr.setR8(R8ID.H, memCntr.memory[memCntr._register.PC + 1])
     memCntr._register.PC = memCntr._register.PC + 2
 
-    logAction('LD HL d16',
-              '_',
-              memCntr.getR8(R8ID.H),
-              memCntr.getR8(R8ID.L),
-              memCntr.getAsR16(memCntr.getR8(R8ID.H), memCntr.getR8(R8ID.L)),
-              memCntr.getR8(R8ID.F))
+    # logAction('LD HL d16',
+    #           '_',
+    #           memCntr.getR8(R8ID.H),
+    #           memCntr.getR8(R8ID.L),
+    #           memCntr.getAsR16(memCntr.getR8(R8ID.H), memCntr.getR8(R8ID.L)),
+    #           memCntr.getR8(R8ID.F))
 
     return 12
 
@@ -803,12 +837,12 @@ def cbOX37(memCntr):
 
     memCntr.setR8(R8ID.A, x)
 
-    logAction(cbOX37.__name__,
-              '#',
-              a,
-              x,
-              memCntr.getR8(R8ID.A),
-              memCntr.getR8(R8ID.F))
+    # logAction(cbOX37.__name__,
+    #           '#',
+    #           a,
+    #           x,
+    #           memCntr.getR8(R8ID.A),
+    #           memCntr.getR8(R8ID.F))
     return 8
 
 
@@ -823,12 +857,12 @@ def cbOX7C(memCntr):
     memCntr._registerFlags.N = 0
     memCntr._registerFlags.H = 1
 
-    logAction('B7 = 0',
-              'B7',
-              0xFF,
-              0x80,
-              memCntr.getR8(R8ID.H),
-              memCntr.getR8(R8ID.F))
+    # logAction('B7 = 0',
+    #           'B7',
+    #           0xFF,
+    #           0x80,
+    #           memCntr.getR8(R8ID.H),
+    #           memCntr.getR8(R8ID.F))
     return 8
 
 
@@ -842,16 +876,36 @@ def cbOX87(memCntr):
     a = a & ~(1 << 0)
     memCntr.setR8(R8ID.A, a)
 
-    logAction('R0, X',
-              '=',
-              aLog,
-              a,
-              memCntr.getR8(R8ID.A),
-              memCntr.getR8(R8ID.F))
+    # logAction('R0, X',
+    #           '=',
+    #           aLog,
+    #           a,
+    #           memCntr.getR8(R8ID.A),
+    #           memCntr.getR8(R8ID.F))
     return 8
 
+# Reset bit 7 of (HL)
+
+
+def cbOXBE(memCntr):
+    address = memCntr.getR16FromR8(R8ID.H)
+    memHL = memCntr.getMemValue(address)
+    aLog = memHL
+
+    memHL = memHL & ~(1 << 7)
+    memHL = memCntr.setMemValue(address, memHL)
+
+    # logAction('R0, X',
+    #           '=',
+    #           aLog,
+    #           memHL,
+    #           memCntr.getR8(R8ID.A),
+    #           memCntr.getR8(R8ID.F))
+    return 8
 
 # SRL B
+
+
 def cbOX38(memCntr):
 
     b = memCntr.getR8(R8ID.B)
@@ -878,19 +932,83 @@ def cbOX38(memCntr):
     else:
         memCntr.resetZero()
 
-    logAction('SRL, B',
-              '=',
-              bLog,
-              b,
-              memCntr.getR8(R8ID.B),
-              memCntr.getR8(R8ID.F))
+    # logAction('SRL, B',
+    #           '=',
+    #           bLog,
+    #           b,
+    #           memCntr.getR8(R8ID.B),
+    #           memCntr.getR8(R8ID.F))
     return 8
+
+
+# def OXCB(memCntr):
+#     cbCode = memCntr.getNextParam()
+#     func = globals()["cbOX%0.2X" % cbCode]
+#     return func(memCntr) + 4  # +4 cycles for fetching cb
+
+# Analysis
 
 
 def OXCB(memCntr):
     cbCode = memCntr.getNextParam()
     func = globals()["cbOX%0.2X" % cbCode]
-    return func(memCntr) + 4  # +4 cycles for fetching cb
+
+    # if str("cbOX%0.2X" % cbCode) in globals():
+    #     func = globals()["cbOX%0.2X" % cbCode]
+    #
+    #     print('PC: ' + format(memCntr.getPC(), '02X') + ' - ' + func.__name__)
+    #
+    #     func(memCntr)
+    #
+    #     key = str("cbOX%0.2X" % cbCode)
+    #
+    #     if(thisdict.get(key, -1) == -1):
+    #         thisdict.setdefault(key, 1)
+    #     else:
+    #         value = thisdict.pop(key)
+    #         thisdict.setdefault(key, value + 1)
+    # else:
+    #     print("cbOX%0.2X" % cbCode)
+    #
+    #     if(str("cbOX%0.2X" % cbCode) == 'cbOX78' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX71' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX32' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX77' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX6F' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX3F' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX13' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX50' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX60' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX68' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX58' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX7F' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX5F' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXFE' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX47' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX70' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX40' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX48' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX79' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX57' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX07' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX9E' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXCC' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX33' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX86' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX61' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXD8' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXF8' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX69' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX27' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXF0' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXD0' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOX46' or
+    #        str("cbOX%0.2X" % cbCode) == 'cbOXB2'):
+    #         return 0
+    #     else:
+    #         sys.exit()
+
+    return func(memCntr)  # +4 cycles for fetching cb
 
 #     switcher = {
 #        0x11: cbOX11,
@@ -919,10 +1037,82 @@ def OXCB(memCntr):
 '''
     Processor codes
 '''
+thisdict = {}
+
+
+def fetchOpCodeAnalysis(memCntr):
+
+    memCntr.setSP(0)
+
+    if(memCntr._register.PC < 0x150):
+        memCntr._register.PC = 0x150
+    elif(memCntr.memory[memCntr._register.PC] == 0x00):
+        memCntr.incPC()
+        return 0
+    elif(memCntr._register.PC > 0x8000):
+        print(thisdict)
+        sys.exit()
+
+    if str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) in globals():
+        func = globals()["OX%0.2X" % memCntr.memory[memCntr._register.PC]]
+
+        print('PC: ' + format(memCntr.getPC(), '02X') + ' - ' + func.__name__)
+        memCntr.oldPC = memCntr.getPC()
+        memCntr.incPC()
+
+        if (str("OX%0.2X" % memCntr.memory[memCntr.oldPC]) != 'OXF9'):
+            func(memCntr)
+
+        key = str("OX%0.2X" % memCntr.memory[memCntr._register.PC])
+
+        if(thisdict.get(key, -1) == -1):
+            thisdict.setdefault(key, 1)
+        else:
+            value = thisdict.pop(key)
+            thisdict.setdefault(key, value + 1)
+
+    else:
+        print("OX%0.2X" % memCntr.memory[memCntr._register.PC])
+
+        if(str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXCC' or
+           str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXD4' or
+           str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXD2' or
+           str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXDC' or
+           str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXC2'):
+            memCntr.incPC()
+            memCntr.incPC()
+            memCntr.incPC()
+        elif(str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXDE' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXF8' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXE8'):
+            memCntr.incPC()
+            memCntr.incPC()
+        elif(str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXD8' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OXD0' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX09' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX9E' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX3B' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX3F' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX37' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX8E' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX88' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX8C' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX98' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX9A' or
+             str("OX%0.2X" % memCntr.memory[memCntr._register.PC]) == 'OX8A'):
+            memCntr.incPC()
+        else:
+            print(str("OX%0.2X" % memCntr.memory[memCntr._register.PC]))
+            print(thisdict)
+            sys.exit()
+
+    return 0
 
 
 def fetchOpCode(memCntr):
 
+    if(memCntr.halt):
+        return 4
     #     if(opCode == ):
     #         start_time = time.perf_counter()
     # time.perf_counter() # start time of the loop
@@ -935,10 +1125,16 @@ def fetchOpCode(memCntr):
     memCntr.oldPC = memCntr.getPC()
     memCntr.incPC()
 
+    # if(memCntr.memory[memCntr._register.PC] == 0x00 and memCntr.memory[memCntr.oldPC] == 0x00):
+    #     sys.exit()
+
     # memCntr._register.PC = memCntr._register.PC + 1
 
 #     start_time = time.perf_counter()
-    return func(memCntr)
+    timeDuration = func(memCntr)
+    #logState(memCntr, func.__name__)
+
+    return timeDuration
 
 #     end_time = time.perf_counter() #time.perf_counter()
 #     executionTimeReal = end_time - start_time

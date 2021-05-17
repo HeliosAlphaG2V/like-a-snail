@@ -4,6 +4,7 @@ import array
 import logging
 import os
 from os.path import normpath
+from pickle import FALSE
 from random import randint
 import struct
 import sys
@@ -37,6 +38,7 @@ class MemCntr:
     bHandleInterrupt = False
     bInterruptOn = False
     opCode = 0xFFFF
+    halt = False
 
     # Stack is working with HRAM, Work RAM
     def push(self, value):
@@ -45,8 +47,9 @@ class MemCntr:
             print("Overflow alert")
             raise MemoryError
 
-        if(self.getSP() - 1 < 0):
-            self.setSP(0xFFFE)
+        if(self.getSP() - 1 <= 0):
+            self.setSP(0xFFFF)
+            print("SP Overflow alert")
         else:
             self.setSP(self.getSP() - 1)
 
@@ -65,9 +68,19 @@ class MemCntr:
         # self.bStack[self.getSP()] = 0x00
 
         value = self.memory[self.getSP()]
+
+        # Limit SP?
+        # if(self.getSP() + 1 < 0xFFFF):
         self.setSP(self.getSP() + 1)
 
-        # if( self.getSP() > 0xFFFF):
+        logger = logging.getLogger()
+        logger.info("POP (PC " + format(self.getPC(), '04X') + "): " +
+                    format(self.getSP(), '04X') + " = " + format(value, '04X'))
+
+        if(self.getSP() >= 0x10000):
+            self.setSP(0x0000)
+            print("SP is now zero")
+
         #    print("SP violation 0xFF80: "+ format(self.getSP(), '04X'))
         if(value > 0xFF):
             print("Overflow alert")
@@ -92,6 +105,7 @@ class MemCntr:
     def getCombinedAdress(self):
         return (0xFF00 | self.getNextParam())
 
+    # Returns: Upper, Lower
     def getTwoR8FromR16(self, value):
 
         bArray = struct.pack(">H", value)
@@ -165,6 +179,9 @@ class MemCntr:
 
     def setMemValue(self, address, value):
 
+        # if(address >= 0x9800 and address <= 0x9853):
+        #     print('Manipulation from: ' + format(self.getPC(), '04X') + ', ' + format(value, '02X') + ' --> ' + format(address, '02X'))
+
         if type(value) is bytes:
             value = int.from_bytes(value, byteorder='little', signed=False)
 
@@ -189,13 +206,15 @@ class MemCntr:
                 self.unmapBios()
                 print('bios unmapped')
 
-            elif(address == 65350):  # 0xFF46
+            elif(address == 0xFF46):  # 0xFF46
                 print('DMA transfer...')
 
-                startAddress = value * 100
-                for i in range(0, 160):  # 0 -> 0xA0
+                startAddress = (value << 8)
+                print('Address: ' + format(value, '04X') + ' -> ' + format(startAddress, '04X'))
+
+                for i in range(0x0, 0xA0):  # 0x0 - 0x9F
                     # 0xFE00
-                    self.memory[65024 + i] = self.memory[startAddress + i]
+                    self.memory[0xFE00 + i] = self.memory[startAddress + i]
 
                 print('DMA transfer complete.')
                 return
@@ -223,16 +242,19 @@ class MemCntr:
 
                 logger = logging.getLogger()
 
-                if((self.memory[0xFFFF] > 0) & (self.bInterruptOn) & (self.memory[0xFF0F] != 0xE0)):
+                # TODO: Reevaluate this function
+                if((self.memory[0xFFFF] > 0) and (self.bInterruptOn) and (self.memory[0xFF0F] != 0xE0)):
                     self.bHandleInterrupt = True
-                    logger.info("Interrupt request: " + format(self.getPC(), '04X') +
-                                " --> " + format(self.oldPC, '04X') + ", type: " + format(value, '08b'))
-                    self.setPC(self.oldPC)
+                    logger.info("Interrupt request from PC: " + format(self.oldPC, '04X') +
+                                " --> " + format(self.getPC(), '04X') + ", type: " + format(value, '08b'))
+                    # self.setPC(self.oldPC)
+                    print("Interrupt request of type " + format(value, '08b'))
 
                 if(value == 0):
                     self.memory[0xFF0F] = 0xE0  # Remove all requests
                 else:
                     self.memory[0xFF0F] = 0xE0 | value
+                    #print("Interrupt register: " + format(self.memory[0xFF0F], '04X'))
 
                 logger.info("Interrupt flag is set to: " +
                             format(self.memory[0xFF0F], '08b'))
@@ -245,6 +267,7 @@ class MemCntr:
                       format(self.memory[self.getPC() - 1], '04X'))
                 print(format(self.getPC() - 2, '04X') + " PC -2 opCode: " +
                       format(self.memory[self.getPC() - 2], '04X'))
+                raise MemoryError
             else:
                 self.memory[address] = value
 
@@ -328,8 +351,10 @@ class MemCntr:
             raise MemoryError
 
     def setSP(self, value):
-        if(value > 0xFFFE):
-            print("Stack pointer overflow!")
+        if(value > 0xFFFF or value < 0x0):
+            print("Stack pointer error: " + format(value, '05X'))
+            print("HL: " + format(self.getR16FromR8(R8ID.H), '05X'))
+            print("PC: " + format(self.getPC(), '05X'))
             raise MemoryError
         else:
             self.register16Bit[1] = value
@@ -374,7 +399,7 @@ class MemCntr:
         # return self.opCode
 
     def getLastOpCode(self):
-        return self.opCode
+        return self.getMemValue(self.oldPC)
 
     '''
     Superfast C struct flag registers
@@ -499,8 +524,9 @@ class MemCntr:
         # self.memory[0xFF0F] = 0xE1
 
         # Boot routine
+        self._register.PC = 0x0
         self.register16Bit[0] = 0x0000
-        self.register16Bit[1] = 0xFFFF
+        self.register16Bit[1] = 0xFFFE
         self.registers[R8ID.F] = 0x00
 
         self._register.A = 0

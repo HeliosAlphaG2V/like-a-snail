@@ -1,7 +1,7 @@
 #!python
 #cython: language_level=3
 from .enumRegister import R8ID
-from .log import logAction
+##from .log import logAction
 
 
 def cmpX(memCntr, x):
@@ -18,7 +18,7 @@ def cmpX(memCntr, x):
         memCntr._registerFlags.Z = 0
 
     memCntr._registerFlags.N = 1
-    logAction(cmpX.__name__, '-', 0, x, 0, memCntr.getR8(R8ID.F))
+    # logAction(cmpX.__name__, '-', 0, x, 0, memCntr.getR8(R8ID.F))
 
 
 def OXB8(memCntr):

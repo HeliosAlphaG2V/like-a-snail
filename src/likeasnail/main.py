@@ -36,9 +36,9 @@ from importlib_resources import files, as_file
 import pygame
 
 from likeasnail.enumRegister import R8ID
-from likeasnail.log import logAction
+from likeasnail.log import showTileIds
 from likeasnail.memoryController import MemCntr
-from likeasnail.opcodes import fetchOpCode
+from likeasnail.opcodes import fetchOpCode, fetchOpCodeAnalysis
 import numpy as np
 
 
@@ -161,6 +161,7 @@ class emulatorAggregator:
 
             if(memCntr.bHandleInterrupt):
                 memCntr.bHandleInterrupt = False
+                memCntr.halt = False
                 splitPC = memCntr.getTwoR8FromR16(memCntr.getPC())
                 memCntr.push(splitPC[1])
                 memCntr.push(splitPC[0])
@@ -169,19 +170,27 @@ class emulatorAggregator:
 
                 if((iFlag & (1 << 0) == 1)):
                     memCntr.setPC(0x0040)  # V-Blank ISR
+                    memCntr.setMemValue(0xFF40, memCntr.getMemValue(0xFF40) & 0x7F)  # LCD OFF
                     print("V-Blank ISR")
+                    logger.info("V-Blank ISR")
 
                 elif((iFlag & (1 << 1) == 2)):
                     memCntr.setPC(0x0048)  # LCD ISR
                     print("LCD ISR")
+                    logger.info("LCD ISR")
 
                 elif((iFlag & (1 << 2) == 4)):
                     memCntr.setPC(0x0050)  # Timer ISR
                     print("Timer ISR")
+                    logger.info("Timer ISR")
 
                 elif((iFlag & (1 << 3) == 8)):
                     memCntr.setPC(0x0060)  # Joypad ISR
                     print("Joypad ISR")
+                    logger.info("Joypad ISR")
+                else:  # Ignore interrupt
+                    print("Unknown ISR - PUSH POP alert!")
+                    memCntr.setPC(memCntr.getAsR16(valueBig=memCntr.pop(), valueLow=memCntr.pop()))
 
             '''
                 CPU cycle
@@ -192,71 +201,73 @@ class emulatorAggregator:
             '''
             while(MAXCYCLES >= cyclesThisUpdate):
 
-                #           # DBG - Stop and Go
-                #                 #print(int(self.user_text, 16))
+                # # DBG - Stop and Go
+                # #print(int(self.user_text, 16))
                 #
-                #                 for event in pygame.event.get():
+                # for event in pygame.event.get():
                 #
-                #                         # if user types QUIT then the screen will close
-                #                         if event.type == pygame.QUIT:
-                #                             pygame.quit()
-                #                             sys.exit()
+                #     # if user types QUIT then the screen will close
+                #     if event.type == pygame.QUIT:
+                #         pygame.quit()
+                #         sys.exit()
                 #
-                #                         if event.type == pygame.KEYDOWN:
+                #     if event.type == pygame.KEYDOWN:
                 #
-                #                             # Check for backspace
-                #                             if event.key == pygame.K_BACKSPACE:
+                #         # Check for backspace
+                #         if event.key == pygame.K_BACKSPACE:
                 #
-                #                                 # get text input from 0 to -1 i.e. end.
-                #                                 self.user_text = self.user_text[:-1]
+                #             # get text input from 0 to -1 i.e. end.
+                #             cls.user_text = cls.user_text[:-1]
                 #
-                #                             # Unicode standard is used for string
-                #                             # formation
-                #                             else:
-                #                                 self.user_text += event.unicode
+                #         # Unicode standard is used for string
+                #         # formation
+                #         else:
+                #             cls.user_text += event.unicode
                 #
-                #                         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
-                #                             hold = True
-                #                             pcTargert = int(self.user_text, 16)
-                #                             print("Hold state: " + str(hold))
+                #     if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:
+                #         hold = True
+                #         pcTargert = int(cls.user_text, 16)
+                #         print("Hold state: " + str(hold))
                 #
-                #                 if(memCntr.getPC() == pcTargert and hold):
-                #                     self.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, rectSfSprite, 0, font)
-                #                     continue
-
-                #                 # DBG
-                #                 if((memCntr.getPC() > self.waitFor) and (self.skipIT == True)):
-                #                     self.thislist.clear()
-                #                     self.thislist.append(0x00)
-                #                     self.waitFor = 0
-                #                     self.skipIT = False
-                #                     print("Skipping stopped... waitFor: " + str(self.waitFor) + " " + str(self.skipIT))
+                # if(memCntr.getPC() == pcTargert and hold):
+                #     cls.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen,
+                #                       sfBorder, rectBorder, sfSprite, sfTiles, rectTiles, rectSfSprite, 0, font)
+                #     continue
+                # # DBG
+                # if((memCntr.getPC() > cls.waitFor) and (cls.skipIT == True)):
+                #     cls.thislist.clear()
+                #     cls.thislist.append(0x00)
+                #     cls.waitFor = 0
+                #     cls.skipIT = False
+                #     print("Skipping stopped... waitFor: " + str(cls.waitFor) + " " + str(cls.skipIT))
                 #
-                #                 else:
+                # else:
                 #
-                #                     if((memCntr.getPC() >= 0x100) or self.biosUnmapped):
-                #                         if((self.thislist.count(self.thislist[0]) >= 3)):
-                #                             print("Skipping loop... for: " + str(self.thislist[0]) + " - " + str(self.thislist.count(self.thislist[0])))
-                #                             self.waitFor = self.thislist[0]
-                #                             self.skipIT = True
+                #     if((memCntr.getPC() >= 0x100) or cls.biosUnmapped):
+                #         if((cls.thislist.count(cls.thislist[0]) >= 3)):
+                #             print("Skipping loop... for: " + str(cls.thislist[0]) + " - " + str(cls.thislist.count(cls.thislist[0])))
+                #             cls.waitFor = cls.thislist[0]
+                #             cls.skipIT = True
                 #
-                #                         else:
+                #         else:
                 #
-                #                             print("waiting...")
-                #                             a = pygame.event.wait()
+                #             print("waiting...")
+                #             a = pygame.event.wait()
                 #
-                #                             if a.type != KEYDOWN:
-                #                                 pygame.event.clear()
-                #                                 self.biosUnmapped = True
-                #                                 print("continue")
-                #                                 continue
-                #                             else:
-                #                                 if(len(self.thislist) > 20):
-                #                                     self.thislist.clear()
-                #
-                #                                 self.thislist.append(memCntr.getPC())
-                #                                 self.thislist.sort(reverse = True)
-                #                                 self.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen, sfBorder, rectBorder, sfSprite, rectSfSprite, memCntr.getMemValue(memCntr.getPC()), font)
+                #             if a.type != pygame.KEYDOWN:
+                #                 pygame.event.clear()
+                #                 cls.biosUnmapped = True
+                #                 print("continue")
+                #                 continue
+                #             # else:
+                #             #     if(len(cls.thislist) > 20):
+                #             #         cls.thislist.clear()
+                #             #
+                #             #     cls.thislist.append(memCntr.getPC())
+                #             #     cls.thislist.sort(reverse=True)
+                #             #     cls.updateSceneFC(memCntr, screen, rxOld, ryOld, imgGB, sfScreen, rectScreen,
+                #             # sfBorder, rectBorder, sfSprite, sfTiles, rectTiles, rectSfSprite,
+                #             # memCntr.getMemValue(memCntr.getPC()), font)
 
                 '''
                     only opcodes 9 - 11 ms without cython
@@ -264,7 +275,7 @@ class emulatorAggregator:
                 opCode = memCntr.getMemValue(memCntr.getPC())
                 start_timeX = time.perf_counter()  # time.perf_counter()
 
-                result = fetchOpCode(memCntr)
+                result = fetchOpCode(memCntr)  # fetchOpCodeAnalysis(memCntr)  # fetchOpCode(memCntr)
 
                 end_time = time.perf_counter()  # time.perf_counter()
                 executionTimeReal = end_time - start_timeX
@@ -281,8 +292,8 @@ class emulatorAggregator:
                 '''
                     LCD 15 - 17 ms (really bad lol)
                 '''
-                # LCD handling
-                if(memCntr.memory[0xFF40] & (1 << 7) != 0):
+                # LCD handling // ToDo: Use check for DI and Interrupt registers
+                if(memCntr.memory[0xFF40] & (1 << 7) != 0 or True):
 
                     # Get LCD status
                     currentHorizontalLine = memCntr.memory[0xFF44]
@@ -299,6 +310,7 @@ class emulatorAggregator:
                         # V blank interrupt enabled check
                         if(status & (1 << 4) != 0):
                             print("LCD requests interrupt (V-Blank)")
+                            #memCntr.halt = False
                     else:
                         '''
                             Speed things up! (There is no hardware)
@@ -323,6 +335,7 @@ class emulatorAggregator:
                             status = (status & 0xFC) | 2
                             if(status & (1 << 5) != 0):
                                 print("LCD requests interrupt (OAM)")
+                                #memCntr.halt = False
                         # (MODE 3) Data to LCD driver
                         elif((scanLineCycles > 72) & (currentMode != 3)):
                             status = (status & 0xFC) | 3
@@ -331,6 +344,7 @@ class emulatorAggregator:
                             status = status & 0xFC
                             if(status & (1 << 3) != 0):
                                 print("LCD requests interrupt (H-Blank)")
+                                #memCntr.halt = False
 
                     # LYC == LY check (set LYC == LY flag in stat register)
                     if(memCntr.memory[0xFF45] == currentHorizontalLine):
@@ -338,6 +352,7 @@ class emulatorAggregator:
                         memCntr.memory[0xFF41] = status
                         if(status & (1 << 6) != 0):
                             print("LCD requests interrupt (LYC == LY)")
+                            #memCntr.halt = False
                     else:
                         status = status & 0xFB
                         memCntr.memory[0xFF41] = status
@@ -354,8 +369,9 @@ class emulatorAggregator:
                             memCntr.memory[0xFF44] = 0
                         else:
                             if(currentHorizontalLine == 144):
-                                memCntr.setMemValue(0xFF0F, 0x01)
-                                #print("Request vertical blank interrupt")
+                                memCntr.setMemValue(0xFF0F, memCntr.getMemValue(0xFF0F) | 0x01)
+                                #print("LCD request vertical blank interrupt")
+                                logger.info("LCD requests vertical blank interrupt")
                             # Next scanline
                             memCntr.memory[0xFF44] = currentHorizontalLine + 1
 
@@ -389,66 +405,51 @@ class emulatorAggregator:
     #             print("######### One second in GB finished #########")
 
             # Render tiles memCntr.vRAMFlag == 1
-            if((updateScene) and cls.isLCDOn(memCntr) and (memCntr.vRAMFlag == 1)):
-                #print("Updating tiles...")
+            if(updateScene and cls.isLCDOn(memCntr) and (memCntr.vRAMFlag == 1)):
+                # print("Updating tiles...")
+                displayCntrReg = memCntr.getMemValue(0xFF40)
 
-                # Bit 4 - BG & Window Tile Data Select (0=8800-97FF,
-                # 1=8000-8FFF)
-                nBGTileMapSelection = (memCntr.getMemValue(0xFF40) & (1 << 4))
-                # Bit 6 - Window Tile Map Display Select (0=9800-9BFF,
-                # 1=9C00-9FFF)
-                nWindowTileMapSelection = (
-                    memCntr.getMemValue(0xFF40) & (1 << 6))
-                # Bit 1 - OBJ (Sprite) Display Enable (0=Off, 1=On)
-                nSprite = (memCntr.getMemValue(0xFF40) & (1 << 1))
+                # Bit 1, 3, 4, 6
+                spriteAreaId = displayCntrReg & 0x01
+                bgAreaId = displayCntrReg & 0x08
+                tileAreaId = displayCntrReg & 0x10
+                windowAreaId = displayCntrReg & 0x40
 
-                if(nBGTileMapSelection == 16):
-                    nStart = 0x8000
-                    nStop = 0x8FFF
+                if(bgAreaId == 0):
+                    backgroundArea = [0x9800, 0x9BFF]
                 else:
-                    nStart = 0x8800
-                    nStop = 0x97FF
+                    backgroundArea = [0x9800, 0x9BFF]
 
-                if(nWindowTileMapSelection == 64):
-                    nWStart = 0x9C00
-                    nWStop = 0x9FFF
+                if(tileAreaId == 0):
+                    tileArea = [0x8800, 0x97FF]
+                    print('Signed')
                 else:
-                    nWStart = 0x9800
-                    nWStop = 0x9BFF
+                    tileArea = [0x8000, 0x8FFF]
+                    print('Unsigned')
 
-    #             # DBG
-    #             if(memCntr.getPC() > 0xC000):
-    #                 for i in range(0x9800, 0x9BFF):
-    #                     #print(memCntr.getMemValue(i))
-    #                     memCntr.setMemValue(i, 70)
-    #
-    #                 # sys.exit()
+                if(windowAreaId == 0):
+                    windowArea = [0x9800, 0x9BFF]
+                else:
+                    windowArea = [0x9800, 0x9BFF]
 
-                print("Checking BG tiles in range: " +
-                      format(nStart, '04X') + " - " + format(nStop, '04X'))
-                print("Checking W tiles in range: " +
-                      format(nWStart, '04X') + " - " + format(nWStop, '04X'))
+                showTileIds('Tiles', tileArea)
+                showTileIds('Window', windowArea)
+                showTileIds('Background', backgroundArea)
 
                 memCntr.vRAMFlag = 0
-                cls.getTileArray(memCntr, 0x8000, 0x97F0,
-                                 tileArray)    # Tiles
-                cls.getTileArray(memCntr, nWStart, nWStop,
-                                 tileArrayW)  # Screen
+                cls.getTileArray(memCntr, tileArea, tileArray)     # Tiles
+                cls.getTileArray(memCntr, windowArea, tileArrayW)  # Screen
 
-                if(nSprite == 2):
-
+                if(spriteAreaId != 0):
                     count = 0
 
-                    # Each sprite has 4 Bytes (160 Bytes / 4 Bytes = 40
-                    # Sprites)
+                    # Each sprite has 4 Bytes (160 Bytes / 4 Bytes = 40 Sprites)
                     for i in range(0xFE00, 0xFEA0, 4):
 
                         spriteArray[count, 0] = memCntr.getMemValue(i)      # X
                         spriteArray[count, 1] = memCntr.getMemValue(i + 1)  # Y
-                        spriteArray[count, 2] = memCntr.getMemValue(
-                            i + 2)  # Tilenumber
-                        spriteArray[count, 3] = memCntr.getMemValue(
-                            i + 3)  # Attribute
+                        spriteArray[count, 2] = memCntr.getMemValue(i + 2)  # Tilenumber
+                        spriteArray[count, 3] = memCntr.getMemValue(i + 3)  # Attribute
 
     #                     if( spriteArray[count, 2] != 0 ):
     #                         print( format(spriteArray[count, 2], '02X') )
@@ -510,9 +511,11 @@ class emulatorAggregator:
         screen.blit(sfSprite, rectSfSprite)
         screen.blit(sfTiles, rectTiles)
 
-        strArray = [str("IME: ") + str(format(memCntr.getMemValue(0xFFFF), "08b")),
-                    str("LCD: ") + str(format(memCntr.getMemValue(0xFF41), "08b")),
-                    str("LC: ") + str(format(memCntr.getMemValue(0xFF40), "08b")),
+        strArray = [str("FFFF (IE): ") + str(format(memCntr.getMemValue(0xFFFF), "08b")),
+                    str("FF41 (Mode): ") + str(format(memCntr.getMemValue(0xFF41), "08b")),
+                    str("FF40 (LC): ") + str(format(memCntr.getMemValue(0xFF40), "08b")) +
+                    str(" Window off/on: ") + str(format((memCntr.getMemValue(0xFF40) & 0x10) >> 4, "01b")) +
+                    str(" BG off/on: ") + str(format((memCntr.getMemValue(0xFF40) & 0x1), "01b")),
                     str("SX: ") + str(format(memCntr.getMemValue(0xFF43), "08b")),
                     str("SY: ") + str(format(memCntr.getMemValue(0xFF42), "08b")),
                     str("WX: ") + str(format(memCntr.getMemValue(0xFF4B), "08b")),
@@ -523,7 +526,16 @@ class emulatorAggregator:
                     str("BC: ") + str(format(memCntr.getR16FromR8(R8ID.B), "04X")),
                     str("DE: ") + str(format(memCntr.getR16FromR8(R8ID.D), "04X")),
                     str("HL: ") + str(format(memCntr.getR16FromR8(R8ID.H), "04X")),
-                    str("SP: ") + str(format(memCntr.getSP(), "04X"))]
+                    str("SP: ") + str(format(memCntr.getSP(), "04X")),
+                    str("TA: ") + str(format(memCntr.getMemValue(0x9800), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9801), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9802), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9803), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9804), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9805), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9806), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9807), "02X")) +
+                    str(', ') + str(format(memCntr.getMemValue(0x9808), "02X"))]
 
         pygame.draw.rect(screen, cls.color, cls.input_rect)
         text_surface = cls.base_font.render(
@@ -556,11 +568,11 @@ class emulatorAggregator:
 
     # TODO: Check when it has to be monochrome
     @classmethod
-    def getTileArray(cls, memCntr, nStart, nStop, tileArray):
+    def getTileArray(cls, memCntr, identifier, tileArray):
 
         count = 0
 
-        for memAddr in range(nStart, nStop, 2):
+        for memAddr in range(identifier[0], identifier[1], 2):
             data1 = memCntr.getMemValue(memAddr)
             data2 = memCntr.getMemValue(memAddr + 1)
 
@@ -628,7 +640,7 @@ class emulatorAggregator:
                     color = (255, 0, 255)  # Error color (Pink)
 
                     if(tileArray[tilePosition] == 1):
-                        color = (255, 255, 255)
+                        color = (0, 255, 255)  # Normally white -> DBG
                     elif(tileArray[tilePosition] == 2):
                         color = (128, 128, 128)
                     elif(tileArray[tilePosition] == 3):
@@ -648,6 +660,7 @@ class emulatorAggregator:
 
         sf.unlock()
 
+    # On screen BG
     @classmethod
     def drawBG(cls, sf, tileArray, memCntr):
 
@@ -668,7 +681,7 @@ class emulatorAggregator:
                     color = (255, 0, 255)  # Error color (Pink)
 
                     if(tileArray[tilePosition] == 1):
-                        color = (255, 255, 255)
+                        color = (0, 255, 255)  # Normally white -> DBG
                     elif(tileArray[tilePosition] == 2):
                         color = (128, 128, 128)
                     elif(tileArray[tilePosition] == 3):
@@ -688,6 +701,7 @@ class emulatorAggregator:
 
         sf.unlock()
 
+    # Tiles in right top corner
     @classmethod
     def drawTiles(cls, sf, tileArray):
 
