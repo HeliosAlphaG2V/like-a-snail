@@ -165,13 +165,6 @@ def setX(memCntr, Id, bit, indirect=False):
         nReg = memCntr.getR8(Id) | (1 << bit)
         memCntr.setR8(Id, nReg)
 
-    # logAction('SET bit ' + str(bit),
-    #           '>1<',
-    #           before,
-    #           nReg,
-    #           memCntr.getMemValue(memCntr.getR16FromR8(Id)),
-    #           memCntr.getR8(R8ID.F))
-
 
 def resX(memCntr, Id, bit, indirect=False):
 
@@ -200,6 +193,11 @@ def cbOXDE(memCntr):
 def cbOXEE(memCntr):
     setX(memCntr, R8ID.H, 5, True)
     return 8
+
+
+def cbOXFE(memCntr):
+    setX(memCntr, R8ID.H, 7, True)
+    return 16
 
 # BIT X, n
 

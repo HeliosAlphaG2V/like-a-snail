@@ -73,6 +73,13 @@ class TestJUMP():
 
         assert getMemoryController.getPC() == 0x1F91
 
+    def testOX18(self, getMemoryController):
+        getMemoryController.setPC(0x42CB)
+        getMemoryController.setMemValue(0x42CB, 0xF4)
+        OX20(getMemoryController)
+
+        assert getMemoryController.getPC() == 0x42C0
+
     def testOX18Forward(self, getMemoryController):
         getMemoryController.setPC(0x2000)
         getMemoryController.setMemValue(0x2000, 0x10)

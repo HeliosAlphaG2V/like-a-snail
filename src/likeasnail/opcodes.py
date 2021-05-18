@@ -15,12 +15,14 @@ from .opCodesAND import (OXA0, OXA1, OXA2, OXA3, OXA4, OXA5, OXA6, OXA7, OXE6)
 from .opCodesCP import (OXB8, OXB9, OXBA, OXBB, OXBC, OXBD, OXBE, OXBF, OXFE)
 from .opCodesDEC import (OX05, OX15, OX0D, OX1D, OX25, OX2B, OX2D, OX35, OX3D, OX0B, OX1B, OX3B)
 from .opCodesINC import (OX03, OX13, OX23, OX2C, OX33, OX34, OX3C, OX04, OX14, OX24, OX0C, OX1C)
-from .opCodesJUMP import (OX18, OXD0, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, OXC7, OXC8, OXC9, OXCA,
+from .opCodesJUMP import (OX18, OXD0, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, OXC7, OXC8, OXC9, OXCA, OXD4,
                           OXDA, OXCD, OXCF, OXD7, OXD9, OXDF, OXE7, OXE9, OXEF, OXF7, OXFF, OXD8, OXC2)
 from .opCodesOR import (OXB0, OXB1, OXB2, OXB3, OXB4, OXB5, OXB6, OXB7, OXF6)
 from .opCodesPushPop import (OXC1, OXD1, OXE1, OXF1, OXC5, OXD5, OXE5, OXF5)
 from .opCodesRotate import (OX07, OX0F, OX1F, cbOX18, cbOX19, cbOX1A, cbOX1B, cbOX1C, cbOX1D,
-                            cbOX1F, cbOX47, cbOX61, cbOX69, cbOX3F, cbOX40, cbOX41, cbOX42, cbOX43, cbOX44, cbOX42, cbOX86, cbOX14, cbOX48, cbOX5F, cbOX6F, cbOX77, cbOX41, cbOXDE, cbOX68, cbOX60, cbOX58, cbOXEE, cbOX7E, cbOX27, cbOX7E, cbOX7F, cbOX50)
+                            cbOX1F, cbOX47, cbOX61, cbOX69, cbOX3F, cbOX40, cbOX41, cbOX42, cbOX43, cbOX44, cbOX42,
+                            cbOX86, cbOX14, cbOX48, cbOX5F, cbOX6F, cbOX77, cbOX41, cbOXDE, cbOX68, cbOX60, cbOX58,
+                            cbOXFE, cbOXEE, cbOX7E, cbOX27, cbOX7E, cbOX7F, cbOX50)
 from .opCodesSUB import (OX90, OX91, OX92, OX93, OX94, OX95, OX96, OX97, OXD6, OX99, OX9B, OX9D, OX9F, OX9C)
 from .opCodesSpecial import (OX00, OX10, OX76, OXF3, OXFB, OX27, OX3F)
 from .opCodesXOR import (OXA8, OXA9, OXAA, OXAB, OXAC, OXAD, OXAE, OXAF, OXEE)
@@ -1132,7 +1134,7 @@ def fetchOpCode(memCntr):
 
 #     start_time = time.perf_counter()
     timeDuration = func(memCntr)
-    #logState(memCntr, func.__name__)
+    logState(memCntr, func.__name__)
 
     return timeDuration
 

@@ -1,10 +1,10 @@
-:doctitle: Like a snail - LAS
 :xrefstyle: short
 :imagesdir: doc/res
+:doctype: book
 
 image::https://github.com/HeliosAlphaG2V/like-a-snail/actions/workflows/python-app.yml/badge.svg?branch=main&event=push[]
 
-= {doctitle}
+= Like a snail - LAS
 
 LAS is another Game Boy emulator written in Python. The challenge is to rely only on Python code without using directly written c code. + 
 Currently it has some sort of C code integrated to get a little bit more speed while debugging. +

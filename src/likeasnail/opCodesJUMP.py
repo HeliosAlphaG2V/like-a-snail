@@ -12,10 +12,7 @@ def rstPush(memCntr, rst):
     memCntr.setPC(rst)
 
 
-# Jump if Z-Flag 0 / Optimized for high performance (more optimization
-# possible)
-
-
+# Jump if Z-Flag 0
 def OX20(memCntr):
 
     if(memCntr.getZero() == 0):
@@ -144,7 +141,7 @@ def OXC2(memCntr):
     upperParam = memCntr.getNextParam()
 
     # Call
-    if (memCntr.getZero() == 1):
+    if (memCntr.getZero() == 0):
         # Callback address to stack
         memCntr.setPC(memCntr.getAsR16(upperParam, lowerParam))
         ret = 16
@@ -178,6 +175,25 @@ def OXC4(memCntr):
 
     # Call
     if (memCntr.getZero() == 0):
+        # Callback address to stack
+        bArray = memCntr.getTwoR8FromR16(memCntr.getPC())
+        memCntr.push(bArray[R8TOR16.LOWER])
+        memCntr.push(bArray[R8TOR16.UPPER])
+        memCntr.setPC(memCntr.getAsR16(upperParam, lowerParam))
+        ret = 24
+
+    return ret
+
+# CALL NC, 0xNNNN
+
+
+def OXD4(memCntr):
+    ret = 12
+    lowerParam = memCntr.getNextParam()
+    upperParam = memCntr.getNextParam()
+
+    # Call
+    if (memCntr.getCarry() == 0):
         # Callback address to stack
         bArray = memCntr.getTwoR8FromR16(memCntr.getPC())
         memCntr.push(bArray[R8TOR16.LOWER])

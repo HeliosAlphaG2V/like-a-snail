@@ -182,6 +182,10 @@ class MemCntr:
         # if(address >= 0x9800 and address <= 0x9853):
         #     print('Manipulation from: ' + format(self.getPC(), '04X') + ', ' + format(value, '02X') + ' --> ' + format(address, '02X'))
 
+        # Serial data
+        if(address == 0xFF01):
+            print('Serial data: ' + format(value, '04X') + ' - ' + chr(value))
+
         if type(value) is bytes:
             value = int.from_bytes(value, byteorder='little', signed=False)
 

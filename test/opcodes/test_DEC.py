@@ -21,6 +21,10 @@ class TestDEC():
         assert getMemoryController.getHalfCarry() == 0
         assert getMemoryController.getCarry() == 0
 
+    def testDecXNoZero(self, getMemoryController):
+        decX(getMemoryController, 0x03)
+        assert getMemoryController.getZero() == 0
+
     def testDecX(self, getMemoryController):
         assert getMemoryController.getZero() == 0
         assert getMemoryController.getSubstract() == 0

@@ -52,6 +52,6 @@ def logState(memCntr, strFName):
                 format(memCntr.getR8(R8ID.E), '02X'),
                 format(memCntr.getR8(R8ID.H), '02X'),
                 format(memCntr.getR8(R8ID.L), '02X'),
-                format((memCntr.getR8(R8ID.F) >> 3) & 0xF, '04b'),
+                format((memCntr.getR8(R8ID.F) >> 4) & 0xF, '04b'),
                 format(memCntr.getSP(), '04X')
                 )
