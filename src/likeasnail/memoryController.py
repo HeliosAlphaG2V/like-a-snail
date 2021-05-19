@@ -179,8 +179,11 @@ class MemCntr:
 
     def setMemValue(self, address, value):
 
-        # if(address >= 0x9800 and address <= 0x9853):
-        #     print('Manipulation from: ' + format(self.getPC(), '04X') + ', ' + format(value, '02X') + ' --> ' + format(address, '02X'))
+        if(address >= 0xD807 and address <= 0xD81A):
+            print('WTF!: ' + format(self.getPC(), '04X') + ', ' + format(value, '02X') + ' --> ' + format(address, '02X'))
+
+        if(address >= 0x9800 and address <= 0x9853):
+            print('Manipulation from: ' + format(self.getPC(), '04X') + ', ' + format(value, '02X') + ' --> ' + format(address, '02X'))
 
         # Serial data
         if(address == 0xFF01):
@@ -291,10 +294,17 @@ class MemCntr:
 
     # @profile
     def getMemValue(self, address):
+
+        if(address >= 0xD807 and address <= 0xD81A):
+            print('Data access from: ' + format(self.getPC(), '04X') + ', ' + format(self.memory[address], '02X') + ' --> ' + format(address, '02X'))
+
+        if(address >= 0xE000 and address <= 0xFDFF):
+            print('ECHO RAM ACCESS - not implemented')
+
         return self.memory[address]
 
     def getNextParam(self):
-        param = self.memory[self.getPC()]
+        param = self.getMemValue(self.getPC())
         self.incPC()
         return param
 

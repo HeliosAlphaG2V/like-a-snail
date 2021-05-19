@@ -4,7 +4,6 @@ from .enumRegister import R8ID
 
 def orrX(memCntr, x):
     a = memCntr.getR8(R8ID.A)
-    aLog = a
     a = a | memCntr.getReduced(x)
 
     memCntr.setR8(R8ID.A, a)
@@ -17,9 +16,6 @@ def orrX(memCntr, x):
         memCntr.setZero()
     else:
         memCntr.resetZero()
-
-    # logAction(orrX.__name__, '|', aLog, x,
-    #                   memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))
 
 
 def OXB0(memCntr):
@@ -53,7 +49,7 @@ def OXB5(memCntr):
 
 
 def OXB6(memCntr):
-    orrX(memCntr, memCntr.getR16FromR8(R8ID.H))
+    orrX(memCntr, memCntr.getMemValue(memCntr.getR16FromR8(R8ID.H)))
     return 8
 
 

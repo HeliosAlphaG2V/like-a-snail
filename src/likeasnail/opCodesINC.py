@@ -86,34 +86,9 @@ def OX33(memCntr):
 
 
 def OX34(memCntr):
-    #     hl = memCntr.getHLValue()
-    #     hlLog = hl
-    #
-    #     hl += 1
-    #     memCntr.setR16FromR8(R8ID.H, hl)
-    adressHL = memCntr.getR16FromR8(R8ID.H)
-
-    value = memCntr.memory[adressHL]
-    #logValue = value
-    value += 1
-
-    if(value > 0xFF):
-        value = 0
-        memCntr.setZero()
-    else:
-        memCntr.resetZero()
-
-    memCntr.resetSubstract()
-
-    memCntr.setMemValue(adressHL, value)
-
-#     logAction('INC (HL)',
-#                       '|',
-#                       adressHL,
-#                       logValue,
-#                       memCntr.getMemValue( adressHL ),
-#                       memCntr.getR8(R8ID.F)
-#                       )
+    address = memCntr.getR16FromR8(R8ID.H)
+    value = incX(memCntr, memCntr.getMemValue(address))
+    memCntr.setMemValue(address, value)
     return 12
 
 # R8

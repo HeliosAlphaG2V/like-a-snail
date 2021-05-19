@@ -290,16 +290,7 @@ def OX77(memCntr):
 def LDxHL(memCntr, ID):
     hl = memCntr.getR16FromR8(R8ID.H)
     memValue = memCntr.getMemValue(hl)
-    xLog = memCntr.getR8(ID)
     memCntr.setR8(ID, memValue)
-
-    # logAction(LDxHL.__name__,
-    #           '=',
-    #           xLog,
-    #           memValue,
-    #           memCntr.getR8(ID),
-    #           memCntr.getR8(R8ID.F)
-    #           )
 
 
 def OX46(memCntr):
@@ -490,8 +481,7 @@ def OX43(memCntr):
 
 
 def OX44(memCntr):
-    memCntr._register.B = memCntr._register.H
-    # LD_RToR(memCntr, R8ID.B, R8ID.H)
+    LD_RToR(memCntr, R8ID.B, R8ID.H)
     return 4
 
 
@@ -1134,7 +1124,7 @@ def fetchOpCode(memCntr):
 
 #     start_time = time.perf_counter()
     timeDuration = func(memCntr)
-    logState(memCntr, func.__name__)
+    #logState(memCntr, func.__name__)
 
     return timeDuration
 

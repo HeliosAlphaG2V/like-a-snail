@@ -190,7 +190,7 @@ def OX85(memCntr):
 
 
 def OX86(memCntr):
-    addX(memCntr, memCntr.memory[memCntr.getR16FromR8(R8ID.H)])
+    addX(memCntr, memCntr.getMemValue(memCntr.getR16FromR8(R8ID.H)))
     return 4
 
 

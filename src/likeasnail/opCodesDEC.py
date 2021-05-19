@@ -84,29 +84,9 @@ def OX3B(memCntr):
 
 
 def OX35(memCntr):
-    adressHL = memCntr.getR16FromR8(R8ID.H)
-
-    value = memCntr.getMemValue(adressHL)
-    logValue = value
-    value -= 1
-
-    if(value == -1):
-        value = 0xFF
-        memCntr.resetZero()
-    elif(value == 0):
-        memCntr.setZero()
-
-    memCntr.setSubstract()
-
-    memCntr.setMemValue(adressHL, value)
-
-#     logAction('DEC (HL)',
-#                       '|',
-#                       adressHL,
-#                       logValue,
-#                       memCntr.getMemValue( adressHL ),
-#                       memCntr.getR8(R8ID.F)
-#                       )
+    address = memCntr.getR16FromR8(R8ID.H)
+    value = decX(memCntr, memCntr.getMemValue(address))
+    memCntr.setMemValue(address, value)
     return 12
 
 # R8

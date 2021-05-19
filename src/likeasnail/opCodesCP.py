@@ -52,7 +52,7 @@ def OXBD(memCntr):
 
 
 def OXBE(memCntr):
-    cmpX(memCntr, memCntr.memory[memCntr.getR16FromR8(R8ID.H)])
+    cmpX(memCntr, memCntr.getMemValue(memCntr.getR16FromR8(R8ID.H)))
     return 8
 
 

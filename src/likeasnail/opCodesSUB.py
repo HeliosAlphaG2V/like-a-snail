@@ -3,29 +3,33 @@
 from .enumRegister import R8ID
 
 
-def subX(memCntr, currentReg):
+def subX(memCntr, x):
 
-    if(memCntr._register.A & (1 << 4) == 0):
-        memCntr._register.A = memCntr._register.A - currentReg
-        memCntr._registerFlags.H = 0
+    a = memCntr.getR8(R8ID.A)
+    xCmpl = ((~x + 1) & 0xFF)
+
+    # Halfcarry from 3rd to 4th bit
+    if((((a & 0x0F) + (xCmpl & 0x0F)) & (0x10)) >= 0x10):
+        memCntr.resetHalfCarry()
     else:
-        memCntr._register.A = memCntr._register.A - currentReg
-        if(memCntr._register.A & (1 << 4) == 1):
-            memCntr._registerFlags.H = 1
+        memCntr.setHalfCarry()
 
-    if(memCntr._register.A == 0):
-        memCntr._registerFlags.Z = 1
-        memCntr._registerFlags.C = 0
+    a += xCmpl
+
+    # Carry from 7th bit to 8th bit
+    if((a & 0x100) >= 0x100):
+        memCntr.resetCarry()
+        a = a & 0xFF
     else:
-        memCntr._registerFlags.Z = 0
-        if(memCntr._register.A < 0):
-            memCntr._register.A = 0
-            memCntr._registerFlags.C = 1
-        else:
-            memCntr._registerFlags.C = 0
+        memCntr.setCarry()
 
-    memCntr._registerFlags.N = 1
-    #logAction(subX.__name__, '-', aLog, x, memCntr.getR8(R8ID.A), memCntr.getR8(R8ID.F))
+    if(a == 0):
+        memCntr.setZero()
+    else:
+        memCntr.resetZero()
+
+    memCntr.setSubstract()
+    memCntr.setR8(R8ID.A, a)
 
 
 def subCX(memCntr, targetID, sourceID):

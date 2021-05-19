@@ -1,11 +1,21 @@
 import pytest
 
 from likeasnail.enumRegister import R8ID
-from likeasnail.opcodes import OX21, OX01, OX02, OX11
+from likeasnail.opcodes import OX21, OX01, OX02, OX11, OX1A
 
 
 @pytest.mark.ldCmds
 class TestLD16():
+
+    def testOX1AResult(self, getMemoryController):
+
+        getMemoryController.setR8(R8ID.D, 0xCC)
+        getMemoryController.setR8(R8ID.E, 0x30)
+        getMemoryController.setMemValue(0xCC30, 0x36)
+
+        OX1A(getMemoryController)
+
+        assert getMemoryController.getR8(R8ID.A) == 0x36
 
     def testOX21ResultH(self, getMemoryController):
 
