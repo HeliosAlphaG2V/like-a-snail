@@ -64,7 +64,7 @@ class TestDEC():
         assert result == 0xFF
         assert getMemoryController.getZero() == 0
         assert getMemoryController.getSubstract() == 1
-        assert getMemoryController.getHalfCarry() == 0
+        assert getMemoryController.getHalfCarry() == 1
         assert getMemoryController.getCarry() == 0
 
     def testOX05Result(self, getMemoryController):

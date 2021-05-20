@@ -1,44 +1,31 @@
 #!python
 #cython: language_level=3
 from .enumRegister import R8ID
-##from .log import logAction
-minimum = 0xFF
 
 
 def decX(memCntr, x):
 
-    if((1 & x) == 0 and (2 & x) == 0 and (4 & x) == 0 and (8 & x) == 0 and x >= 16):
-        memCntr._registerFlags.H = 1
+    # Halfcarry from 3rd to 4th bit
+    if((((x & 0x0F) + (0xFF & 0x0F)) & (0x10)) >= 0x10):
+        memCntr.resetHalfCarry()
     else:
-        memCntr._registerFlags.H = 0
+        memCntr.setHalfCarry()
 
-    x -= 1
+    x = (x + 0xFF) & 0xFF  # Complement of -1
 
-    # Overflow
-    if(x == -1):
-        x = minimum
-
-    memCntr._registerFlags.N = 1
+    memCntr.setSubstract()
 
     if(x == 0):
-        memCntr._registerFlags.Z = 1
+        memCntr.setZero()
     else:
-        memCntr._registerFlags.Z = 0
+        memCntr.resetZero()
 
     return x
-    # logAction(decX.__name__,
-    #           '-',
-    #           0,
-    #           0x01,
-    #           x,
-    #           memCntr.getR8(R8ID.F)
-    #           )
 
 
 def decX16(memCntr, ID):
 
     x = memCntr.getR16FromR8(ID)
-    xLog = x
     x -= 1
 
     # Overflow
@@ -46,14 +33,6 @@ def decX16(memCntr, ID):
         x = 0xFFFF
 
     memCntr.setR16FromR8(ID, x)
-
-    # logAction(decX16.__name__,
-    #           '-',
-    #           xLog,
-    #           0x01,
-    #           x,
-    #           memCntr.getR8(R8ID.F)
-    #           )
 
 # R16
 
