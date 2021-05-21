@@ -66,3 +66,21 @@ class TestRotate():
         OX1F(getMemoryController)
 
         assert getMemoryController.getCarry() == 1
+
+    def testOX1FHalfCarry(self, getMemoryController):
+        getMemoryController.setR8(R8ID.A, 0xFF)
+        OX1F(getMemoryController)
+
+        assert getMemoryController.getHalfCarry() == 0
+
+    def testOX1FZero(self, getMemoryController):
+        getMemoryController.setR8(R8ID.A, 0x0)
+        OX1F(getMemoryController)
+
+        assert getMemoryController.getZero() == 0
+
+    def testOX1FSubstract(self, getMemoryController):
+        getMemoryController.setR8(R8ID.A, 0xFF)
+        OX1F(getMemoryController)
+
+        assert getMemoryController.getSubstract() == 0
