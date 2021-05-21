@@ -4,8 +4,7 @@ from .enumRegister import R8ID
 
 
 def xorX(memCntr, x):
-    #aLog = memCntr.getR8(R8ID.A)
-    a = memCntr.getReduced(x) ^ memCntr.getR8(R8ID.A)
+    a = x ^ memCntr.getR8(R8ID.A)
 
     memCntr.setR8(R8ID.A, a)
 
@@ -17,14 +16,6 @@ def xorX(memCntr, x):
         memCntr.setZero()
     else:
         memCntr.resetZero()
-
-#     logAction(xorX.__name__,
-#                       '*',
-#                       aLog,
-#                       x,
-#                       memCntr.getR8(R8ID.A),
-#                       memCntr.getR8(R8ID.F)
-#                       )
 
 
 def OXA8(memCntr):
