@@ -181,7 +181,7 @@ class MemCntr:
 
         # Serial data
         if(address == 0xFF01):
-            print('Serial data: ' + format(value, '04X') + ' - ' + chr(value))
+            print('Serial data: ' + format(value, '02X') + ' - ' + chr(value))
 
         if type(value) is bytes:
             value = int.from_bytes(value, byteorder='little', signed=False)
