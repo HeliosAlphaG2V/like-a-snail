@@ -19,10 +19,10 @@ from .opCodesJUMP import (OX18, OXD0, OX20, OX28, OX30, OX38, OXC0, OXC3, OXC4, 
                           OXDA, OXCD, OXCF, OXD7, OXD9, OXDF, OXE7, OXE9, OXEF, OXF7, OXFF, OXD8, OXC2)
 from .opCodesOR import (OXB0, OXB1, OXB2, OXB3, OXB4, OXB5, OXB6, OXB7, OXF6)
 from .opCodesPushPop import (OXC1, OXD1, OXE1, OXF1, OXC5, OXD5, OXE5, OXF5)
-from .opCodesRotate import (OX07, OX0F, OX1F, cbOX18, cbOX19, cbOX1A, cbOX1B, cbOX1C, cbOX1D,
+from .opCodesRotate import (OX07, OX17, OX0F, OX1F, cbOX11, cbOX18, cbOX19, cbOX1A, cbOX1B, cbOX1C, cbOX1D,
                             cbOX1F, cbOX47, cbOX61, cbOX69, cbOX3F, cbOX40, cbOX41, cbOX42, cbOX43, cbOX44, cbOX42,
-                            cbOX86, cbOX14, cbOX48, cbOX5F, cbOX6F, cbOX77, cbOX41, cbOXDE, cbOX68, cbOX60, cbOX58,
-                            cbOXFE, cbOXEE, cbOX7E, cbOX27, cbOX7E, cbOX7F, cbOX50)
+                            cbOX86, cbOX14, cbOX87, cbOX48, cbOX5F, cbOX6F, cbOX77, cbOX41, cbOXDE, cbOX68, cbOX60, cbOX58,
+                            cbOXFE, cbOXBE, cbOX38, cbOXEE, cbOX7E, cbOX27, cbOX7E, cbOX7F, cbOX50)
 from .opCodesSUB import (OX90, OX91, OX92, OX93, OX94, OX95, OX96, OX97, OXD6, OX99, OX9B, OX9D, OX9F, OX9C)
 from .opCodesSpecial import (OX00, OX10, OX76, OXF3, OXFB, OX27, OX3F)
 from .opCodesXOR import (OXA8, OXA9, OXAA, OXAB, OXAC, OXAD, OXAE, OXAF, OXEE)
@@ -35,38 +35,6 @@ from .opCodesXOR import (OXA8, OXA9, OXAA, OXAB, OXAC, OXAD, OXAE, OXAF, OXEE)
 # logging.basicConfig(format=FORMAT)
 # '%(funcName)s, \t\t\t%(message)s'
 # # Helper functions
-def roLX(memCntr, ID):
-    x = memCntr.getR8(ID)
-    xLog = x
-    x *= 2
-
-    # Put Carryflag into first bit
-    if(memCntr.getCarry() == 1):
-        x = x | (1 << 0)
-        memCntr.resetCarry()
-
-    # Put 9th Bit into Carryflag
-    if(x & (1 << 8) == 256):
-        memCntr.setCarry()
-        x = x & ~(1 << 8)
-
-    memCntr.setR8(ID, x)
-
-    if(x == 0):
-        memCntr.setZero()
-    else:
-        memCntr.resetZero()
-
-    memCntr.resetHalfCarry()
-    memCntr.resetSubstract()
-
-    # logAction(roLX.__name__,
-    #           '{',
-    #           xLog,
-    #           x,
-    #           memCntr.getR8(ID),
-    #           memCntr.getR8(R8ID.F))
-
 
 # NOP
 def OXD3(*_):
@@ -787,21 +755,9 @@ def OX21(memCntr):
     return 12
 
 
-# roLX A
-def OX17(memCntr):
-    roLX(memCntr, R8ID.A)
-    return 4
-
-
 '''
 ### CB Codes
 '''
-
-
-# roLX C
-def cbOX11(memCntr):
-    roLX(memCntr, R8ID.C)
-    return 8
 
 
 # Swap A upper with higher nibbles
@@ -854,81 +810,6 @@ def cbOX7C(memCntr):
     #           0xFF,
     #           0x80,
     #           memCntr.getR8(R8ID.H),
-    #           memCntr.getR8(R8ID.F))
-    return 8
-
-
-# Reset bit 0 of A
-def cbOX87(memCntr):
-
-    a = memCntr.getR8(R8ID.A)
-    aLog = a
-
-    # Remove 0th Bit
-    a = a & ~(1 << 0)
-    memCntr.setR8(R8ID.A, a)
-
-    # logAction('R0, X',
-    #           '=',
-    #           aLog,
-    #           a,
-    #           memCntr.getR8(R8ID.A),
-    #           memCntr.getR8(R8ID.F))
-    return 8
-
-# Reset bit 7 of (HL)
-
-
-def cbOXBE(memCntr):
-    address = memCntr.getR16FromR8(R8ID.H)
-    memHL = memCntr.getMemValue(address)
-    aLog = memHL
-
-    memHL = memHL & ~(1 << 7)
-    memHL = memCntr.setMemValue(address, memHL)
-
-    # logAction('R0, X',
-    #           '=',
-    #           aLog,
-    #           memHL,
-    #           memCntr.getR8(R8ID.A),
-    #           memCntr.getR8(R8ID.F))
-    return 8
-
-# SRL B
-
-
-def cbOX38(memCntr):
-
-    b = memCntr.getR8(R8ID.B)
-
-    # Test 0th Bit and put it in Carry if 1
-    b = b & ~(1 << 0)
-    if(b == b - 1):
-        memCntr.selfCarry()
-    else:
-        memCntr.resetCarry()
-
-    b = b // 2  # Shift to Right
-    bLog = b
-
-    # Remove MSB Bit
-    b = b & ~(1 << 7)
-    memCntr.setR8(R8ID.B, b)
-
-    memCntr.resetSubstract()
-    memCntr.resetHalfCarry()
-
-    if(b == 0):
-        memCntr.setZero()
-    else:
-        memCntr.resetZero()
-
-    # logAction('SRL, B',
-    #           '=',
-    #           bLog,
-    #           b,
-    #           memCntr.getR8(R8ID.B),
     #           memCntr.getR8(R8ID.F))
     return 8
 

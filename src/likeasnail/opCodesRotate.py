@@ -146,13 +146,6 @@ def bitX(memCntr, Id, bit, indirect=False):
     memCntr.resetSubstract()
     memCntr.setHalfCarry()
 
-    # logAction('BIT ' + str(Id),
-    #           '>&<',
-    #           memCntr.getCarry(),
-    #           nReg,
-    #           0x01,
-    #           memCntr.getR8(R8ID.F))
-
 
 def setX(memCntr, Id, bit, indirect=False):
 
@@ -178,9 +171,20 @@ def resX(memCntr, Id, bit, indirect=False):
 # RES X, n
 
 
-def cbOX86(memCntr):
-    setX(memCntr, R8ID.H, 0, True)
+def cbOXBE(memCntr):
+    resX(memCntr, R8ID.H, 7, True)
+
     return 16
+
+
+def cbOX86(memCntr):
+    resX(memCntr, R8ID.H, 0, True)
+    return 16
+
+
+def cbOX87(memCntr):
+    resX(memCntr, R8ID.A, 0)
+    return 8
 
 # SET X, n
 
@@ -299,52 +303,62 @@ def cbOX7F(memCntr):
 # RL X
 
 
+def cbOX11(memCntr):
+    rlCX(memCntr, R8ID.C)
+    return 8
+
+
 def cbOX14(memCntr):
-    rrX(memCntr, R8ID.H)
+    rlCX(memCntr, R8ID.H)
     return 8
 
 # RR X
 
 
 def cbOX18(memCntr):
-    rrX(memCntr, R8ID.B)
+    rrCX(memCntr, R8ID.B)
     return 8
 
 
 def cbOX19(memCntr):
-    rrX(memCntr, R8ID.C)
+    rrCX(memCntr, R8ID.C)
     return 8
 
 
 def cbOX1A(memCntr):
-    rrX(memCntr, R8ID.D)
+    rrCX(memCntr, R8ID.D)
     return 8
 
 
 def cbOX1B(memCntr):
-    rrX(memCntr, R8ID.E)
+    rrCX(memCntr, R8ID.E)
     return 8
 
 
 def cbOX1C(memCntr):
-    rrX(memCntr, R8ID.H)
+    rrCX(memCntr, R8ID.H)
     return 8
 
 
 def cbOX1D(memCntr):
-    rrX(memCntr, R8ID.L)
+    rrCX(memCntr, R8ID.L)
     return 8
 
 
 def cbOX1F(memCntr):
-    rrX(memCntr, R8ID.A)
+    rrCX(memCntr, R8ID.A)
     return 8
 
-# SRA X
+# SRL X
 
 
 def cbOX3F(memCntr):
     rrX(memCntr, R8ID.A)
+    return 8
+
+
+def cbOX38(memCntr):
+    rrX(memCntr, R8ID.B)
     return 8
 
 # SLA X
@@ -354,24 +368,40 @@ def cbOX27(memCntr):
     rlX(memCntr, R8ID.A)
     return 8
 
-# RR (C) A
+
+# RRCA
+
+
+def OX0F(memCntr):
+    rrCX(memCntr, R8ID.A)
+
+    memCntr.resetZero()
+    return 4
+
+# RRA
 
 
 def OX1F(memCntr):
-    rrX(memCntr, R8ID.A)
+    rrCX(memCntr, R8ID.A)
+
+    memCntr.resetZero()
     return 4
 
 
-# RL (C) A
+# RLCA
 
 
 def OX07(memCntr):
     rlCX(memCntr, R8ID.A)
+
+    memCntr.resetZero()
     return 4
 
+# RLA
 
-# RRCA
 
-def OX0F(memCntr):
-    rrCX(memCntr, R8ID.A)
+def OX17(memCntr):
+    rlCX(memCntr, R8ID.A)
+
+    memCntr.resetZero()
     return 4
